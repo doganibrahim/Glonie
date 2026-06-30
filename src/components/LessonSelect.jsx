@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
+import { useLocale } from '../hooks/useLocale';
+import { LESSON_STATES } from '../constants/theme';
 
 const LessonSelect = ({ onLessonSelect }) => {
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { t } = useLocale();
 
   useEffect(() => {
     const fetchLessons = async () => {
@@ -49,8 +52,8 @@ const LessonSelect = ({ onLessonSelect }) => {
       {/* Clean Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-2xl mx-auto px-6 py-4">
-          <h1 className="text-2xl font-semibold text-gray-900">Unit 1</h1>
-          <p className="text-gray-600 mt-1">Learn English family, learn English conversations</p>
+          <h1 className="text-2xl font-semibold text-gray-900">{t('lessons.title')}</h1>
+          <p className="text-gray-600 mt-1">{t('lessons.subtitle')}</p>
         </div>
       </div>
 
@@ -99,14 +102,14 @@ const LessonSelect = ({ onLessonSelect }) => {
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900">{lesson.title}</h3>
                     <p className="text-sm text-gray-600 mt-1">
-                      {lesson.cards?.length || 0} exercises
+                      {lesson.cards?.length || 0} {t('lessons.exercises')}
                     </p>
                   </div>
 
                   {/* Status */}
                   {isActive && (
                     <div className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                      START
+                      {t('lessons.start')}
                     </div>
                   )}
                 </div>

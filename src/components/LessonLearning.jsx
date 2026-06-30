@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
+import { useLocale } from '../hooks/useLocale';
 import LearningCard from './LearningCard';
 
 const LessonLearning = ({ lessonId, onBackToLessons }) => {
@@ -8,6 +9,7 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lessonComplete, setLessonComplete] = useState(false);
+  const { t } = useLocale();
 
   useEffect(() => {
     const fetchLesson = async () => {
@@ -80,13 +82,13 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center border border-gray-200">
           <div className="text-4xl mb-4">🎉</div>
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-            Lesson Complete!
+            {t('completion.title')}
           </h2>
           <h3 className="text-lg text-gray-600 mb-4">
             {lesson.title}
           </h3>
           <p className="text-gray-600 mb-6">
-            Great job! You've completed all {lesson.cards.length} exercises.
+            {t('completion.message', { count: lesson.cards.length })}
           </p>
           
           <div className="space-y-3">
@@ -94,14 +96,14 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
               onClick={handleRestart}
               className="w-full bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors"
             >
-              Practice Again
+              {t('completion.practiceAgain')}
             </button>
             
             <button
               onClick={onBackToLessons}
               className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
             >
-              Choose Another Lesson
+              {t('completion.chooseAnother')}
             </button>
           </div>
         </div>
@@ -118,7 +120,7 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
             onClick={onBackToLessons}
             className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
           >
-            Back to Lessons
+            {t('learning.backToLessons')}
           </button>
         </div>
       </div>
@@ -137,7 +139,7 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
             <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
-            Back
+            {t('learning.back')}
           </button>
           
           <div className="bg-white px-4 py-2 rounded-lg border border-gray-200">

@@ -1,0 +1,41 @@
+{
+  "app": {
+    "name": "Glonie"
+  },
+  "lessons": {
+    "title": "Unit 1",
+    "subtitle": "Learn English family, learn English conversations",
+    "exercises": "exercises",
+    "start": "START",
+    "loading": "Loading lessons...",
+    "error": "Failed to load lessons"
+  },
+  "learning": {
+    "progress": "Progress",
+    "back": "Back",
+    "previous": "Previous",
+    "next": "Next",
+    "listenAgain": "Listen Again",
+    "showIPA": "Show IPA",
+    "hideIPA": "Hide IPA",
+    "pronunciation": "Pronunciation:",
+    "speakYourAnswer": "Speak your answer",
+    "instructions": "Tap card to replay audio • Toggle IPA for pronunciation guide",
+    "loading": "Loading lesson...",
+    "error": "Failed to load lesson",
+    "noExercises": "No exercises found in this lesson.",
+    "backToLessons": "Back to Lessons"
+  },
+  "cardTypes": {
+    "story": "Story",
+    "fillBlank": "Fill the Blank",
+    "speech": "Speaking",
+    "learning": "Learning"
+  },
+  "completion": {
+    "title": "Lesson Complete!",
+    "message": "Great job! You've completed all {count} exercises.",
+    "practiceAgain": "Practice Again",
+    "chooseAnother": "Choose Another Lesson"
+  }
+}

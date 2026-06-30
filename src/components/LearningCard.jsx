@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useLocale } from '../hooks/useLocale';
+import { CARD_TYPES, AUDIO } from '../constants/theme';
 
 const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) => {
   const [showIPA, setShowIPA] = useState(false);
   const [audioElement, setAudioElement] = useState(null);
+  const { t } = useLocale();
 
   // Auto-play audio when card loads
   useEffect(() => {
@@ -12,15 +15,14 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
       
       const playAudio = async () => {
         try {
-          audio.volume = 0.8;
+          audio.volume = AUDIO.volume;
           await audio.play();
-          console.log(`✅ Auto-playing: ${card.text_target}`);
         } catch (error) {
-          console.log('📢 Auto-play blocked or audio not found:', error.message);
+          console.log('Auto-play blocked:', error.message);
         }
       };
       
-      const timer = setTimeout(playAudio, 300);
+      const timer = setTimeout(playAudio, AUDIO.autoPlayDelay);
       
       return () => {
         clearTimeout(timer);
@@ -79,16 +81,8 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
   };
 
   const getCardTypeConfig = (type) => {
-    switch (type) {
-      case 'STORY':
-        return { label: 'Story', color: 'bg-green-500' };
-      case 'FILL_BLANK':
-        return { label: 'Fill the Blank', color: 'bg-blue-500' };
-      case 'SPEECH':
-        return { label: 'Speaking', color: 'bg-purple-500' };
-      default:
-        return { label: 'Learning', color: 'bg-gray-500' };
-    }
+    const config = CARD_TYPES[type] || CARD_TYPES.DEFAULT;
+    return config;
   };
 
   const cardConfig = getCardTypeConfig(card.card_type);
@@ -99,7 +93,7 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
         {/* Progress Bar */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Progress</span>
+            <span className="text-sm text-gray-600">{t('learning.progress')}</span>
             <span className="text-sm text-gray-600">
               {currentIndex + 1} / {totalCards}
             </span>
@@ -118,13 +112,13 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center">
               <div className={`w-3 h-3 rounded-full mr-2 ${cardConfig.color}`}></div>
-              <span className="font-medium text-gray-700">{cardConfig.label}</span>
+              <span className="font-medium text-gray-700">{t(`cardTypes.${cardConfig.label}`)}</span>
             </div>
             <button
               onClick={() => setShowIPA(!showIPA)}
               className="text-sm text-blue-600 hover:text-blue-800 font-medium"
             >
-              {showIPA ? 'Hide IPA' : 'Show IPA'}
+              {showIPA ? t('learning.hideIPA') : t('learning.showIPA')}
             </button>
           </div>
 
@@ -162,7 +156,7 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
               {showIPA && (
                 <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <div className="text-center">
-                    <p className="text-sm text-blue-700 mb-1">Pronunciation:</p>
+                    <p className="text-sm text-blue-700 mb-1">{t('learning.pronunciation')}</p>
                     <p className="text-blue-800 font-mono text-lg">
                       {card.text_ipa}
                     </p>
@@ -207,7 +201,7 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
               disabled={currentIndex === totalCards - 1}
               className="flex items-center px-4 py-2 text-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed hover:text-gray-800 font-medium"
             >
-              Next
+              {t('learning.next')}
               <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
               </svg>
@@ -217,7 +211,7 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
 
         {/* Instructions */}
         <div className="mt-4 text-center text-sm text-gray-500">
-          Tap card to replay audio • Toggle IPA for pronunciation guide
+          {t('learning.instructions')}
         </div>
       </div>
     </div>

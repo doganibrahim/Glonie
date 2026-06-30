@@ -3,7 +3,7 @@ import LessonSelect from './components/LessonSelect';
 import LessonLearning from './components/LessonLearning';
 
 function App() {
-  const [currentView, setCurrentView] = useState('lessons'); // 'lessons' or 'learning'
+  const [currentView, setCurrentView] = useState('lessons');
   const [selectedLessonId, setSelectedLessonId] = useState(null);
 
   const handleLessonSelect = (lessonId) => {
