@@ -56,7 +56,8 @@ const LessonSelect = ({ onLessonSelect }) => {
       <div className="max-w-2xl mx-auto px-6 py-8">
         <div className="space-y-4">
           {lessons.map((lesson, index) => {
-            const isLocked = index > 0;
+            // First lesson always open; others unlock when the previous lesson is done
+            const isLocked = index > 0 && localStorage.getItem(`lesson_done_${lessons[index - 1]?.id}`) !== 'true';
             const color = LESSON_COLORS[index % LESSON_COLORS.length];
             const totalCards = lesson.cards?.length || 0;
             const savedProgress = localStorage.getItem(`lesson_progress_${lesson.id}`);

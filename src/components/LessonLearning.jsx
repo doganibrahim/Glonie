@@ -47,6 +47,8 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
     } else {
       // Lesson complete — save total length to mark full completion
       localStorage.setItem(`lesson_progress_${lessonId}`, String(lesson.cards.length));
+      // Mark lesson as done to unlock the next lesson
+      localStorage.setItem(`lesson_done_${lessonId}`, 'true');
       setLessonComplete(true);
     }
   };
