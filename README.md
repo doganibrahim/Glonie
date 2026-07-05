@@ -183,7 +183,10 @@ cards
 | `ccc7c12` | Jun 25 | feat: setup SQLite database and SQLAlchemy models |
 | `8f43e0f` | Jun 30 | feat: add API layer, seed data, and minimalist lesson/card UI with auto-play audio |
 | `a09d3ca` | Jun 30 | add constants and locales |
-| `df908ac` | Jul 4 | revise theme and lesson select screen |
+| `df908ac` | Jul 04 | revise theme and lesson select screen |
+| `936f23c` | Jul 05 | update README for first sprint |
+| `997f549` | Jul 05 | track lesson progress in localStorage |
+| `04938df` | Jul 05 | add lesson unlock mechanism |
 
 </details>
 

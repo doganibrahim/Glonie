@@ -32,5 +32,3 @@ export const AUDIO = {
   autoPlayDelay: 300, // ms
 };
 
-// API
-export const API_BASE_URL = 'http://localhost:8000';
