@@ -77,7 +77,7 @@ The architecture follows a local-first hybrid approach, majority of the app runs
 ---
 
 <details>
-  <summary><h2>Project Management</h2></summary>
+  <summary><h2>Backlog</h2></summary>
 
 ![backlog_1](src/assets/sprint_1/backlog_1.png)
 
