@@ -56,9 +56,12 @@ const LessonSelect = ({ onLessonSelect }) => {
       <div className="max-w-2xl mx-auto px-6 py-8">
         <div className="space-y-4">
           {lessons.map((lesson, index) => {
-            const isActive = index === 0;
             const isLocked = index > 0;
             const color = LESSON_COLORS[index % LESSON_COLORS.length];
+            const totalCards = lesson.cards?.length || 0;
+            const savedProgress = localStorage.getItem(`lesson_progress_${lesson.id}`);
+            const progressCount = savedProgress !== null ? Math.min(Number(savedProgress), totalCards) : 0;
+            const isCompleted = progressCount >= totalCards && totalCards > 0;
 
             return (
               <div
@@ -98,7 +101,17 @@ const LessonSelect = ({ onLessonSelect }) => {
                   </div>
 
                   {/* Badge */}
-                  {isActive && (
+                  {!isLocked && isCompleted && (
+                    <div className="bg-emerald-500 text-white px-4 py-2 rounded-full text-sm font-semibold shrink-0">
+                      ✓ {totalCards}/{totalCards}
+                    </div>
+                  )}
+                  {!isLocked && !isCompleted && progressCount > 0 && (
+                    <div className="bg-amber-500 text-white px-4 py-2 rounded-full text-sm font-semibold shrink-0">
+                      {progressCount}/{totalCards}
+                    </div>
+                  )}
+                  {!isLocked && !isCompleted && progressCount === 0 && (
                     <div className="bg-emerald-500 text-white px-4 py-2 rounded-full text-sm font-semibold shrink-0">
                       {t('lessons.start')}
                     </div>

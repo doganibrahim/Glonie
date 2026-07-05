@@ -17,6 +17,15 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
         setLoading(true);
         const data = await api.getLesson(lessonId);
         setLesson(data);
+
+        // Restore progress from localStorage
+        const saved = localStorage.getItem(`lesson_progress_${lessonId}`);
+        if (saved !== null) {
+          const savedIndex = Number(saved);
+          if (savedIndex >= 0 && savedIndex < data.cards.length) {
+            setCurrentCardIndex(savedIndex);
+          }
+        }
       } catch (err) {
         setError('Failed to load lesson');
         console.error('Error fetching lesson:', err);
@@ -32,8 +41,12 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
 
   const handleNext = () => {
     if (currentCardIndex < lesson.cards.length - 1) {
-      setCurrentCardIndex(currentCardIndex + 1);
+      const nextIndex = currentCardIndex + 1;
+      setCurrentCardIndex(nextIndex);
+      localStorage.setItem(`lesson_progress_${lessonId}`, String(nextIndex));
     } else {
+      // Lesson complete — save total length to mark full completion
+      localStorage.setItem(`lesson_progress_${lessonId}`, String(lesson.cards.length));
       setLessonComplete(true);
     }
   };
@@ -47,6 +60,7 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
   const handleRestart = () => {
     setCurrentCardIndex(0);
     setLessonComplete(false);
+    localStorage.setItem(`lesson_progress_${lessonId}`, '0');
   };
 
   if (loading) {

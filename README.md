@@ -19,6 +19,8 @@ To avoid cognitive overload, Glonie uses a *micro-learning* UX philosophy. A sin
 
 The architecture follows a local-first hybrid approach, majority of the app runs on a static SQLite database to minimize API costs and maximize speed.
 
+
+
 </details>
 
 ---
@@ -151,6 +153,7 @@ cards
   * `İbrahim :D`
 
 - **Sprint Retrospective:**
+  * It was decided to research and integrate AI-powered adaptive learning for Sprint 2 and 3.
   * It was decided to expand contents for more structured learning experience.
   * It was decided to implement interactive fill-the-blank input as core interactivity.
   * It was decided to postpone Speech API integration to Sprint 3 due to complexity and browser dependency.

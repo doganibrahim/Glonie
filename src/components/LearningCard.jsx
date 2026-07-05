@@ -198,10 +198,13 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
               onClick={() => {
                 onNext();
               }}
-              disabled={currentIndex === totalCards - 1}
-              className="flex items-center px-4 py-2 text-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed hover:text-gray-800 font-medium"
+              className={`flex items-center px-4 py-2 font-medium ${
+                currentIndex === totalCards - 1
+                  ? 'text-green-600 hover:text-green-700'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
             >
-              {t('learning.next')}
+              {currentIndex === totalCards - 1 ? t('learning.finish') : t('learning.next')}
               <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
               </svg>
