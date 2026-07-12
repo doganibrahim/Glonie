@@ -105,7 +105,8 @@ def seed_chapter_1(db: Session):
             audio_url="http://localhost:8000/assets/audio/mrs_smith.mp3",
             text_target="Mrs. Smith is a {blank}.",
             text_ipa="/ˈmɪsɪz smɪθ ɪz ə/",
-            card_type="FILL_BLANK"
+            card_type="FILL_BLANK",
+            correct_answer="woman"
         ),
         Card(
             lesson_id=lesson2.id,
@@ -176,7 +177,8 @@ def seed_chapter_1(db: Session):
             audio_url="http://localhost:8000/assets/audio/children.mp3",
             text_target="The {blank} are playing.",
             text_ipa="/ðə ˈtʃɪldrən ɑr pleɪɪŋ/",
-            card_type="FILL_BLANK"
+            card_type="FILL_BLANK",
+            correct_answer="children"
         ),
         Card(
             lesson_id=lesson3.id,
@@ -220,7 +222,8 @@ def seed_chapter_1(db: Session):
             audio_url="http://localhost:8000/assets/audio/complete_sentence.mp3",
             text_target="The man is {blank} than the boy.",
             text_ipa="/ðə mæn ɪz ðæn ðə bɔɪ/",
-            card_type="FILL_BLANK"
+            card_type="FILL_BLANK",
+            correct_answer="taller"
         ),
         Card(
             lesson_id=lesson4.id,
@@ -238,7 +241,8 @@ def seed_chapter_1(db: Session):
             audio_url="http://localhost:8000/assets/audio/identify_exercise.mp3",
             text_target="She is the {blank} of the family.",
             text_ipa="/ʃiː ɪz ðə ʌv ðə ˈfæməli/",
-            card_type="FILL_BLANK"
+            card_type="FILL_BLANK",
+            correct_answer="mother"
         ),
         Card(
             lesson_id=lesson4.id,

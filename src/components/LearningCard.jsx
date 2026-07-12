@@ -5,6 +5,9 @@ import { CARD_TYPES, AUDIO } from '../constants/theme';
 const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) => {
   const [showIPA, setShowIPA] = useState(false);
   const [audioElement, setAudioElement] = useState(null);
+  const [fillBlankAnswer, setFillBlankAnswer] = useState('');
+  const [fillBlankSubmitted, setFillBlankSubmitted] = useState(false);
+  const [fillBlankCorrect, setFillBlankCorrect] = useState(false);
   const { t } = useLocale();
 
   // Auto-play audio when card loads
@@ -34,6 +37,13 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
     }
   }, [card?.audio_url]);
 
+  // Reset fill-blank state when card changes
+  useEffect(() => {
+    setFillBlankAnswer('');
+    setFillBlankSubmitted(false);
+    setFillBlankCorrect(false);
+  }, [card?.id, currentIndex]);
+
   const handleAudioPlay = () => {
     if (audioElement) {
       audioElement.currentTime = 0;
@@ -47,6 +57,20 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
     handleAudioPlay();
   };
 
+  const handleFillBlankSubmit = (e) => {
+    e.preventDefault();
+    if (!fillBlankAnswer.trim()) return;
+    const isCorrect = fillBlankAnswer.trim().toLowerCase() === (card.correct_answer || '').toLowerCase();
+    setFillBlankCorrect(isCorrect);
+    setFillBlankSubmitted(true);
+  };
+
+  const handleFillBlankRetry = () => {
+    setFillBlankAnswer('');
+    setFillBlankSubmitted(false);
+    setFillBlankCorrect(false);
+  };
+
   const renderCardContent = () => {
     if (card.card_type === 'FILL_BLANK') {
       const parts = card.text_target.split('{blank}');
@@ -54,9 +78,61 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
         <div className="text-center">
           <p className="text-2xl text-gray-800 leading-relaxed font-medium">
             {parts[0]}
-            <span className="inline-block w-20 h-8 bg-blue-100 border-2 border-blue-300 mx-2 rounded-lg border-dashed"></span>
+            {fillBlankSubmitted ? (
+              <span className={`inline-block px-2 py-1 mx-1 rounded-lg font-bold ${
+                fillBlankCorrect 
+                  ? 'bg-green-100 text-green-700 border border-green-300' 
+                  : 'bg-red-100 text-red-700 border border-red-300'
+              }`}>
+                {fillBlankAnswer}
+              </span>
+            ) : (
+              <input
+                type="text"
+                value={fillBlankAnswer}
+                onChange={(e) => setFillBlankAnswer(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleFillBlankSubmit(e); }}
+                onClick={(e) => e.stopPropagation()}
+                placeholder={t('learning.fillBlankPlaceholder')}
+                className="inline-block w-32 h-8 px-2 mx-1 border-2 border-blue-300 rounded-lg text-center text-base focus:outline-none focus:border-blue-500 bg-blue-50"
+                autoFocus
+              />
+            )}
             {parts[1]}
           </p>
+
+          {/* Feedback */}
+          {fillBlankSubmitted && (
+            <div className={`mt-4 p-3 rounded-lg border ${
+              fillBlankCorrect 
+                ? 'bg-green-50 border-green-200' 
+                : 'bg-red-50 border-red-200'
+            }`}>
+              <p className={`text-sm font-medium ${fillBlankCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                {fillBlankCorrect 
+                  ? t('learning.correct') 
+                  : t('learning.incorrect').replace('{answer}', card.correct_answer)}
+              </p>
+              {!fillBlankCorrect && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleFillBlankRetry(); }}
+                  className="mt-2 px-4 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                >
+                  {t('learning.tryAgain')}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Submit Button */}
+          {!fillBlankSubmitted && fillBlankAnswer.trim() && (
+            <button
+              onClick={(e) => { e.stopPropagation(); handleFillBlankSubmit(e); }}
+              className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              {t('learning.submit')}
+            </button>
+          )}
         </div>
       );
     }

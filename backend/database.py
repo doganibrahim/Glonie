@@ -30,6 +30,7 @@ class Card(Base):
     text_target = Column(String, nullable=False)
     text_ipa = Column(String, nullable=False)
     card_type = Column(String, nullable=False)
+    correct_answer = Column(String, nullable=True)  # Used for FILL_BLANK cards
 
     lesson = relationship("Lesson", back_populates="cards")
 

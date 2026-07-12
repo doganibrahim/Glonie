@@ -10,6 +10,7 @@ class CardBase(BaseModel):
     text_target: str
     text_ipa: str
     card_type: str
+    correct_answer: str | None = None
 
 
 class CardCreate(CardBase):
