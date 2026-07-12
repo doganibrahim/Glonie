@@ -79,6 +79,8 @@ The architecture follows a local-first hybrid approach, majority of the app runs
 <details>
   <summary><h2>Project Management</h2></summary>
 
+🔗 [Product Backlog (Miro)](https://miro.com/app/board/uXjVHD7M_YM=/?share_link_id=120371824479)
+
 ![backlog_1](src/assets/sprint_1/backlog_1.png)
 
 ![backlog_2](src/assets/sprint_1/backlog_2.png)
@@ -187,6 +189,26 @@ cards
 | `936f23c` | Jul 05 | update README for first sprint |
 | `997f549` | Jul 05 | track lesson progress in localStorage |
 | `04938df` | Jul 05 | add lesson unlock mechanism |
+
+</details>
+
+---
+
+<details>
+  <summary><h1>Sprint 2</h1></summary>
+
+---
+
+<details>
+  <summary><h2>Project Management</h2></summary>
+
+🔗 [Product Backlog (Miro)](https://miro.com/app/board/uXjVHD7M_YM=/?share_link_id=120371824479)
+
+![backlog_1](src/sprint_2/backlog_1.png)
+
+</details>
+
+---
 
 </details>
 
