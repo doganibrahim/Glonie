@@ -77,7 +77,7 @@ The architecture follows a local-first hybrid approach, majority of the app runs
 ---
 
 <details>
-  <summary><h2>Project Management</h2></summary>
+  <summary><h2>Backlog</h2></summary>
 
 🔗 [Product Backlog (Miro)](https://miro.com/app/board/uXjVHD7M_YM=/?share_link_id=120371824479)
 
