@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import { api } from '../services/api';
 import { useLocale } from '../hooks/useLocale';
 import LearningCard from './LearningCard';
@@ -64,6 +65,37 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
     setLessonComplete(false);
     localStorage.setItem(`lesson_progress_${lessonId}`, '0');
   };
+
+  // Fire confetti when lesson is completed
+  useEffect(() => {
+    if (!lessonComplete) return;
+
+    const duration = 350;
+    const end = Date.now() + duration;
+
+    const frame = () => {
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.6 },
+        colors: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'],
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.6 },
+        colors: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'],
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    };
+
+    frame();
+  }, [lessonComplete]);
 
   if (loading) {
     return (
