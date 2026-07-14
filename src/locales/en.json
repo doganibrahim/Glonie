@@ -52,6 +52,7 @@
     "filterLabel": "Filter by lesson",
     "noCompleted": "Complete a lesson to start building your word bank!",
     "noEntries": "No entries found for this filter.",
-    "playAudio": "Play audio for"
+    "playAudio": "Play audio for",
+    "shuffle": "Shuffle"
   }
 }

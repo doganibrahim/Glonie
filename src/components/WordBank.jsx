@@ -1,12 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { api } from '../services/api';
 import { useLocale } from '../hooks/useLocale';
 import { AUDIO } from '../constants/theme';
+
+const SHUFFLE_STORAGE_KEY = 'wordbank_shuffle';
+
+// Fisher-Yates shuffle
+const shuffleArray = (array) => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
 
 const WordBank = ({ onBack }) => {
   const [lessons, setLessons] = useState([]);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [selectedLessonId, setSelectedLessonId] = useState('all');
+  const [shuffleMode, setShuffleMode] = useState(
+    () => localStorage.getItem(SHUFFLE_STORAGE_KEY) === 'true'
+  );
+  const [shuffleSeed, setShuffleSeed] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [playingAudioId, setPlayingAudioId] = useState(null);
@@ -44,6 +60,14 @@ const WordBank = ({ onBack }) => {
     audio.addEventListener('ended', () => setPlayingAudioId(null));
   };
 
+  const handleToggleShuffle = () => {
+    const next = !shuffleMode;
+    setShuffleMode(next);
+    localStorage.setItem(SHUFFLE_STORAGE_KEY, String(next));
+    // Trigger a new shuffle order
+    if (next) setShuffleSeed((s) => s + 1);
+  };
+
   // Gather all word entries from completed lessons
   const getFilteredEntries = () => {
     const source =
@@ -68,7 +92,11 @@ const WordBank = ({ onBack }) => {
     return entries;
   };
 
-  const entries = getFilteredEntries();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const entries = useMemo(() => {
+    const raw = getFilteredEntries();
+    return shuffleMode ? shuffleArray(raw) : raw;
+  }, [completedLessons, selectedLessonId, shuffleMode, shuffleSeed]);
 
   if (loading) {
     return (
@@ -111,12 +139,12 @@ const WordBank = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Filter */}
-      <div className="max-w-2xl mx-auto px-6 pt-6">
+      {/* Filter & Shuffle Controls */}
+      <div className="max-w-2xl mx-auto px-6 pt-6 flex flex-wrap items-center gap-3">
         <select
           value={selectedLessonId}
           onChange={(e) => setSelectedLessonId(e.target.value)}
-          className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
           aria-label={t('wordBank.filterLabel')}
         >
           <option value="all">{t('wordBank.allLessons')}</option>
@@ -126,6 +154,22 @@ const WordBank = ({ onBack }) => {
             </option>
           ))}
         </select>
+
+        <button
+          onClick={handleToggleShuffle}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border font-medium text-sm transition-colors ${
+            shuffleMode
+              ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
+              : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'
+          }`}
+          aria-pressed={shuffleMode}
+          aria-label={t('wordBank.shuffle')}
+        >
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M3 3a1 1 0 011 1v.5h1.586a2 2 0 011.414.586l1.828 1.828A4.016 4.016 0 008 8.5H4V9a1 1 0 01-2 0V4a1 1 0 011-1zm14 0a1 1 0 011 1v5a1 1 0 11-2 0v-.5h-1.586a2 2 0 01-1.414-.586L11.172 6.086A4.016 4.016 0 0012 4.5H16V4a1 1 0 011-1zM3 11a1 1 0 011 1v.5h4a4.016 4.016 0 00.828-1.586l1.828 1.828A2 2 0 019.586 13.5H4V14a1 1 0 11-2 0v-5a1 1 0 011-1h1zm14 0a1 1 0 011 1v5a1 1 0 11-2 0v-.5h-4a4.016 4.016 0 01-.828 1.586l-1.828-1.828a2 2 0 011.07-.758H16v-.5a1 1 0 011-1z" />
+          </svg>
+          {t('wordBank.shuffle')}
+        </button>
       </div>
 
       {/* Word List */}
