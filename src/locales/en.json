@@ -24,6 +24,7 @@
     "fillBlankPlaceholder": "Type the missing word...",
     "submit": "Submit",
     "tryAgain": "Try Again",
+    "tryAgainHint": "Incorrect! {remaining} attempt(s) remaining.",
     "correct": "Correct!",
     "incorrect": "Incorrect. The answer is: {answer}",
     "instructions": "Tap card to replay audio • Toggle IPA for pronunciation guide",

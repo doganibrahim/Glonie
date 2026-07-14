@@ -8,14 +8,19 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
   const [fillBlankAnswer, setFillBlankAnswer] = useState('');
   const [fillBlankSubmitted, setFillBlankSubmitted] = useState(false);
   const [fillBlankCorrect, setFillBlankCorrect] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [isShaking, setIsShaking] = useState(false);
   const { t } = useLocale();
 
-  // Auto-play audio when card loads
+  // Auto-play audio when card loads (skip for SPEECH cards)
   useEffect(() => {
     if (card?.audio_url) {
       const audio = new Audio(card.audio_url);
       setAudioElement(audio);
       
+      // Don't auto-play for SPEECH cards
+      if (card.card_type === 'SPEECH') return;
+
       const playAudio = async () => {
         try {
           audio.volume = AUDIO.volume;
@@ -35,13 +40,15 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
         }
       };
     }
-  }, [card?.audio_url]);
+  }, [card?.audio_url, card?.card_type]);
 
   // Reset fill-blank state when card changes
   useEffect(() => {
     setFillBlankAnswer('');
     setFillBlankSubmitted(false);
     setFillBlankCorrect(false);
+    setFailedAttempts(0);
+    setIsShaking(false);
   }, [card?.id, currentIndex]);
 
   const handleAudioPlay = () => {
@@ -63,6 +70,11 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
     const isCorrect = fillBlankAnswer.trim().toLowerCase() === (card.correct_answer || '').toLowerCase();
     setFillBlankCorrect(isCorrect);
     setFillBlankSubmitted(true);
+    if (!isCorrect) {
+      setFailedAttempts(prev => prev + 1);
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
+    }
   };
 
   const handleFillBlankRetry = () => {
@@ -74,17 +86,23 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
   const renderCardContent = () => {
     if (card.card_type === 'FILL_BLANK') {
       const parts = card.text_target.split('{blank}');
+      const showCorrectAnswer = !fillBlankCorrect && failedAttempts >= 2 && fillBlankSubmitted;
       return (
         <div className="text-center">
-          <p className="text-2xl text-gray-800 leading-relaxed font-medium">
+          <p className={`text-2xl text-gray-800 leading-relaxed font-medium ${isShaking ? 'animate-shake' : ''}`}>
             {parts[0]}
             {fillBlankSubmitted ? (
-              <span className={`inline-block px-2 py-1 mx-1 rounded-lg font-bold ${
+              <span className={`inline-flex items-center px-2 py-1 mx-1 rounded-lg font-bold ${
                 fillBlankCorrect 
                   ? 'bg-green-100 text-green-700 border border-green-300' 
                   : 'bg-red-100 text-red-700 border border-red-300'
               }`}>
                 {fillBlankAnswer}
+                {fillBlankCorrect && (
+                  <svg className="w-5 h-5 ml-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
               </span>
             ) : (
               <input
@@ -93,7 +111,7 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
                 onChange={(e) => setFillBlankAnswer(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleFillBlankSubmit(e); }}
                 onClick={(e) => e.stopPropagation()}
-                placeholder={t('learning.fillBlankPlaceholder')}
+                placeholder=""
                 className="inline-block w-32 h-8 px-2 mx-1 border-2 border-blue-300 rounded-lg text-center text-base focus:outline-none focus:border-blue-500 bg-blue-50"
                 autoFocus
               />
@@ -108,18 +126,29 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
                 ? 'bg-green-50 border-green-200' 
                 : 'bg-red-50 border-red-200'
             }`}>
-              <p className={`text-sm font-medium ${fillBlankCorrect ? 'text-green-700' : 'text-red-700'}`}>
-                {fillBlankCorrect 
-                  ? t('learning.correct') 
-                  : t('learning.incorrect').replace('{answer}', card.correct_answer)}
-              </p>
-              {!fillBlankCorrect && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleFillBlankRetry(); }}
-                  className="mt-2 px-4 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-colors"
-                >
-                  {t('learning.tryAgain')}
-                </button>
+              {fillBlankCorrect ? (
+                <div className="flex items-center justify-center">
+                  <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-sm font-medium text-green-700">{t('learning.correct')}</p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-red-700">
+                    {showCorrectAnswer
+                      ? t('learning.incorrect').replace('{answer}', card.correct_answer)
+                      : t('learning.tryAgainHint').replace('{remaining}', String(2 - failedAttempts))}
+                  </p>
+                  {!showCorrectAnswer && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleFillBlankRetry(); }}
+                      className="mt-2 px-4 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      {t('learning.tryAgain')}
+                    </button>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -144,12 +173,15 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
         </p>
         {card.card_type === 'SPEECH' && (
           <div className="mt-4">
-            <div className="inline-flex items-center bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">
+            <button
+              onClick={(e) => { e.stopPropagation(); /* TODO: implement speech recognition */ }}
+              className="inline-flex items-center bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm hover:bg-blue-100 transition-colors cursor-pointer"
+            >
               <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
               </svg>
-              Speak your answer
-            </div>
+              {t('learning.speakYourAnswer')}
+            </button>
           </div>
         )}
       </div>
