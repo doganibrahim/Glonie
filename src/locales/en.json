@@ -44,5 +44,14 @@
     "message": "Great job! You've completed all {count} exercises.",
     "practiceAgain": "Practice Again",
     "chooseAnother": "Choose Another Lesson"
+  },
+  "wordBank": {
+    "title": "Word Bank",
+    "subtitle": "All words and phrases from your completed lessons",
+    "allLessons": "All Lessons",
+    "filterLabel": "Filter by lesson",
+    "noCompleted": "Complete a lesson to start building your word bank!",
+    "noEntries": "No entries found for this filter.",
+    "playAudio": "Play audio for"
   }
 }

@@ -3,7 +3,7 @@ import { api } from '../services/api';
 import { useLocale } from '../hooks/useLocale';
 import { LESSON_COLORS } from '../constants/theme';
 
-const LessonSelect = ({ onLessonSelect }) => {
+const LessonSelect = ({ onLessonSelect, onOpenWordBank }) => {
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -47,8 +47,22 @@ const LessonSelect = ({ onLessonSelect }) => {
       {/* Header */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-2xl mx-auto px-6 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">{t('lessons.title')}</h1>
-          <p className="text-gray-500 mt-2 text-lg">{t('lessons.subtitle')}</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{t('lessons.title')}</h1>
+              <p className="text-gray-500 mt-2 text-lg">{t('lessons.subtitle')}</p>
+            </div>
+            <button
+              onClick={onOpenWordBank}
+              className="shrink-0 ml-4 flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors font-medium text-sm"
+              aria-label={t('wordBank.title')}
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+              </svg>
+              {t('wordBank.title')}
+            </button>
+          </div>
         </div>
       </div>
 
