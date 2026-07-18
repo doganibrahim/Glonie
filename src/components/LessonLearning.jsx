@@ -153,23 +153,23 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
 
   if (lessonComplete) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center border border-gray-200">
-          <div className="text-4xl mb-4">🎉</div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-3 py-4 sm:p-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-5 sm:p-8 text-center border border-gray-200">
+          <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🎉</div>
+          <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">
             {t('completion.title')}
           </h2>
-          <h3 className="text-lg text-gray-600 mb-4">
+          <h3 className="text-base sm:text-lg text-gray-600 mb-3 sm:mb-4">
             {lesson.title}
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
             {t('completion.message', { count: lesson.cards.length })}
           </p>
 
           {/* Score Summary */}
           {(score.correct + score.incorrect) > 0 && (
-            <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-              <p className="text-lg font-semibold text-emerald-700">
+            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <p className="text-base sm:text-lg font-semibold text-emerald-700">
                 {t('completion.score', { correct: score.correct, total: score.correct + score.incorrect })}
               </p>
             </div>
@@ -178,14 +178,14 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
           <div className="space-y-3">
             <button
               onClick={handleRestart}
-              className="w-full bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors"
+              className="w-full bg-green-500 text-white py-2.5 sm:py-3 rounded-lg font-medium hover:bg-green-600 transition-colors text-sm sm:text-base"
             >
               {t('completion.practiceAgain')}
             </button>
             
             <button
               onClick={onBackToLessons}
-              className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              className="w-full bg-gray-100 text-gray-700 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors text-sm sm:text-base"
             >
               {t('completion.chooseAnother')}
             </button>
@@ -214,21 +214,21 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
   return (
     <div className="relative">
       {/* Clean Header */}
-      <div className="absolute top-4 left-4 right-4 z-10">
-        <div className="flex items-center justify-between">
+      <div className="absolute top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-10">
+        <div className="flex items-center justify-between gap-2">
           <button
             onClick={onBackToLessons}
-            className="bg-white text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 font-medium flex items-center"
+            className="bg-white text-gray-700 px-2 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 font-medium flex items-center text-sm sm:text-base shrink-0"
           >
-            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-4 h-4 mr-1 sm:mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
             {t('learning.back')}
           </button>
           
-          <div className="bg-white px-4 py-2 rounded-lg border border-gray-200">
+          <div className="bg-white px-2 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-gray-200 min-w-0">
             <div className="text-center">
-              <h2 className="font-semibold text-gray-900">{lesson.title}</h2>
+              <h2 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{lesson.title}</h2>
               <p className="text-xs text-gray-600">Lesson {lesson.order_index}</p>
             </div>
           </div>

@@ -118,13 +118,13 @@ const WordBank = ({ onBack }) => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-100">
-        <div className="max-w-2xl mx-auto px-6 py-6">
-          <div className="flex items-center mb-4">
+        <div className="max-w-2xl mx-auto px-4 py-4 sm:px-6 sm:py-6">
+          <div className="flex items-center mb-3 sm:mb-4">
             <button
               onClick={onBack}
-              className="text-gray-600 hover:text-gray-800 mr-4 flex items-center font-medium"
+              className="text-gray-600 hover:text-gray-800 mr-3 sm:mr-4 flex items-center font-medium text-sm sm:text-base"
             >
-              <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
@@ -134,17 +134,17 @@ const WordBank = ({ onBack }) => {
               {t('learning.back')}
             </button>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('wordBank.title')}</h1>
-          <p className="text-gray-500 mt-2 text-lg">{t('wordBank.subtitle')}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('wordBank.title')}</h1>
+          <p className="text-gray-500 mt-1 sm:mt-2 text-base sm:text-lg">{t('wordBank.subtitle')}</p>
         </div>
       </div>
 
       {/* Filter & Shuffle Controls */}
-      <div className="max-w-2xl mx-auto px-6 pt-6 flex flex-wrap items-center gap-3">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 flex flex-wrap items-center gap-2 sm:gap-3">
         <select
           value={selectedLessonId}
           onChange={(e) => setSelectedLessonId(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          className="flex-1 min-w-0 px-3 py-2 sm:px-4 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
           aria-label={t('wordBank.filterLabel')}
         >
           <option value="all">{t('wordBank.allLessons')}</option>
@@ -157,7 +157,7 @@ const WordBank = ({ onBack }) => {
 
         <button
           onClick={handleToggleShuffle}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border font-medium text-sm transition-colors ${
+          className={`flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 rounded-lg border font-medium text-xs sm:text-sm transition-colors shrink-0 ${
             shuffleMode
               ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
               : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'
@@ -173,25 +173,25 @@ const WordBank = ({ onBack }) => {
       </div>
 
       {/* Word List */}
-      <div className="max-w-2xl mx-auto px-6 py-6">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         {completedLessons.length === 0 ? (
-          <div className="text-center py-16">
+          <div className="text-center py-12 sm:py-16">
             <div className="text-4xl mb-4">📚</div>
-            <p className="text-gray-600 text-lg">{t('wordBank.noCompleted')}</p>
+            <p className="text-gray-600 text-base sm:text-lg">{t('wordBank.noCompleted')}</p>
           </div>
         ) : entries.length === 0 ? (
-          <div className="text-center py-16">
+          <div className="text-center py-12 sm:py-16">
             <p className="text-gray-500">{t('wordBank.noEntries')}</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {entries.map((entry) => (
               <div
                 key={`${entry.lesson_id}-${entry.id}`}
-                className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4 hover:shadow-sm transition-shadow"
+                className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:shadow-sm transition-shadow"
               >
                 {/* Thumbnail */}
-                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
                   <img
                     src={entry.image_url}
                     alt={entry.text_target}
@@ -202,7 +202,7 @@ const WordBank = ({ onBack }) => {
                     }}
                   />
                   <div
-                    className="w-full h-full items-center justify-center text-gray-400 text-xl"
+                    className="w-full h-full items-center justify-center text-gray-400 text-lg sm:text-xl"
                     style={{ display: 'none' }}
                   >
                     📷
@@ -211,10 +211,10 @@ const WordBank = ({ onBack }) => {
 
                 {/* Text */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-lg font-semibold text-gray-900 truncate">
+                  <p className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                     {entry.text_target}
                   </p>
-                  <p className="text-sm text-blue-700 font-mono truncate">
+                  <p className="text-xs sm:text-sm text-blue-700 font-mono truncate">
                     {entry.text_ipa}
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">{entry.lessonTitle}</p>
@@ -223,14 +223,14 @@ const WordBank = ({ onBack }) => {
                 {/* Audio Button */}
                 <button
                   onClick={() => handlePlayAudio(entry.audio_url, entry.id)}
-                  className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                  className={`shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors ${
                     playingAudioId === entry.id
                       ? 'bg-emerald-100 text-emerald-700'
                       : 'bg-gray-100 text-gray-600 hover:bg-emerald-50 hover:text-emerald-600'
                   }`}
                   aria-label={`${t('wordBank.playAudio')} ${entry.text_target}`}
                 >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
                       d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"

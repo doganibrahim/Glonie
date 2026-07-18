@@ -97,10 +97,10 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
       const showCorrectAnswer = !fillBlankCorrect && failedAttempts >= 2 && fillBlankSubmitted;
       return (
         <div className="text-center">
-          <p className={`text-2xl text-gray-800 leading-relaxed font-medium ${isShaking ? 'animate-shake' : ''}`}>
+          <p className={`text-xl sm:text-2xl text-gray-800 leading-relaxed font-medium ${isShaking ? 'animate-shake' : ''}`}>
             {parts[0]}
             {fillBlankSubmitted ? (
-              <span className={`inline-flex items-center px-2 py-1 mx-1 rounded-lg font-bold ${
+              <span className={`inline-flex items-center px-1.5 py-0.5 sm:px-2 sm:py-1 mx-1 rounded-lg font-bold text-base sm:text-xl ${
                 fillBlankCorrect 
                   ? 'bg-green-100 text-green-700 border border-green-300' 
                   : 'bg-red-100 text-red-700 border border-red-300'
@@ -120,7 +120,7 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
                 onKeyDown={(e) => { if (e.key === 'Enter') handleFillBlankSubmit(e); }}
                 onClick={(e) => e.stopPropagation()}
                 placeholder=""
-                className="inline-block w-32 h-8 px-2 mx-1 border-2 border-blue-300 rounded-lg text-center text-base focus:outline-none focus:border-blue-500 bg-blue-50"
+                className="inline-block w-24 sm:w-32 h-8 px-2 mx-1 border-2 border-blue-300 rounded-lg text-center text-sm sm:text-base focus:outline-none focus:border-blue-500 bg-blue-50"
                 autoFocus
               />
             )}
@@ -176,7 +176,7 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
 
     return (
       <div className="text-center">
-        <p className="text-2xl text-gray-800 leading-relaxed font-medium">
+        <p className="text-xl sm:text-2xl text-gray-800 leading-relaxed font-medium">
           {card.text_target}
         </p>
         {card.card_type === 'SPEECH' && (
@@ -204,13 +204,13 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
   const cardConfig = getCardTypeConfig(card.card_type);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-2 py-3 sm:p-4">
       <div className="w-full max-w-lg">
         {/* Progress Bar */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">{t('learning.progress')}</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-xs sm:text-sm text-gray-600">{t('learning.progress')}</span>
+            <span className="text-xs sm:text-sm text-gray-600">
               {currentIndex + 1} / {totalCards}
             </span>
           </div>
@@ -225,14 +225,14 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
         {/* Card */}
         <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
           {/* Card Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            <div className="flex items-center">
-              <div className={`w-3 h-3 rounded-full mr-2 ${cardConfig.color}`}></div>
-              <span className="font-medium text-gray-700">{t(`cardTypes.${cardConfig.label}`)}</span>
+          <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200">
+            <div className="flex items-center min-w-0">
+              <div className={`w-3 h-3 rounded-full mr-2 shrink-0 ${cardConfig.color}`}></div>
+              <span className="font-medium text-gray-700 text-sm sm:text-base truncate">{t(`cardTypes.${cardConfig.label}`)}</span>
             </div>
             <button
               onClick={() => setShowIPA(!showIPA)}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium shrink-0 ml-2"
             >
               {showIPA ? t('learning.hideIPA') : t('learning.showIPA')}
             </button>
@@ -240,12 +240,12 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
 
           {/* Card Content */}
           <div 
-            className="p-6 cursor-pointer"
+            className="p-3 sm:p-6 cursor-pointer"
             onClick={handleCardClick}
           >
             {/* Image */}
-            <div className="mb-6">
-              <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+            <div className="mb-4 sm:mb-6">
+              <div className="w-full h-32 sm:h-48 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
                 <img
                   src={card.image_url}
                   alt={card.text_target}
@@ -265,7 +265,7 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
             </div>
 
             {/* Text Content */}
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               {renderCardContent()}
               
               {/* IPA Transcription */}
@@ -283,23 +283,24 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
           </div>
 
           {/* Navigation */}
-          <div className="flex justify-between items-center p-4 bg-gray-50 border-t border-gray-200">
+          <div className="flex justify-between items-center p-2 sm:p-4 bg-gray-50 border-t border-gray-200">
             <button
               onClick={onPrevious}
               disabled={currentIndex === 0}
-              className="flex items-center px-4 py-2 text-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed hover:text-gray-800 font-medium"
+              className="flex items-center px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base text-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed hover:text-gray-800 font-medium shrink-0"
             >
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 mr-0.5 sm:mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
-              Previous
+              <span className="hidden sm:inline">Previous</span>
+              <span className="sm:hidden">Prev</span>
             </button>
 
-            <div className="flex space-x-1">
+            <div className="flex flex-wrap justify-center gap-0.5 sm:gap-1 max-w-[40%] overflow-hidden">
               {Array.from({ length: totalCards }).map((_, index) => (
                 <div
                   key={index}
-                  className={`w-2 h-2 rounded-full ${
+                  className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
                     index === currentIndex 
                       ? 'bg-green-500' 
                       : index < currentIndex 
@@ -314,14 +315,14 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
               onClick={() => {
                 onNext();
               }}
-              className={`flex items-center px-4 py-2 font-medium ${
+              className={`flex items-center px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base font-medium shrink-0 ${
                 currentIndex === totalCards - 1
                   ? 'text-green-600 hover:text-green-700'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
               {currentIndex === totalCards - 1 ? t('learning.finish') : t('learning.next')}
-              <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 ml-0.5 sm:ml-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
               </svg>
             </button>
