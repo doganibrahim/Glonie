@@ -28,8 +28,37 @@ const LessonSelect = ({ onLessonSelect, onOpenWordBank }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-gray-300 border-t-emerald-500 rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header skeleton */}
+        <div className="bg-white border-b border-gray-100">
+          <div className="max-w-2xl mx-auto px-4 py-4 sm:px-6 sm:py-6">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="h-8 sm:h-9 bg-gray-200 rounded-lg w-48 animate-pulse"></div>
+                <div className="h-5 bg-gray-200 rounded w-64 mt-2 animate-pulse"></div>
+              </div>
+              <div className="h-9 w-24 bg-gray-200 rounded-lg animate-pulse shrink-0"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Lesson card skeletons */}
+        <div className="max-w-2xl mx-auto px-4 py-6 sm:px-6 sm:py-8">
+          <div className="space-y-3 sm:space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="rounded-2xl border border-gray-200 p-4 sm:p-6 bg-white">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-gray-200 animate-pulse mr-3 sm:mr-5 shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="h-5 sm:h-6 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/3 mt-2 animate-pulse"></div>
+                  </div>
+                  <div className="h-7 w-16 bg-gray-200 rounded-full animate-pulse shrink-0 ml-2"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

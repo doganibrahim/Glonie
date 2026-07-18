@@ -126,10 +126,34 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading lesson...</p>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header skeleton */}
+        <div className="p-2 sm:p-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="h-9 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+            <div className="bg-white px-4 py-2 rounded-lg border border-gray-200">
+              <div className="h-5 w-32 bg-gray-200 rounded animate-pulse mx-auto"></div>
+              <div className="h-3 w-20 bg-gray-200 rounded animate-pulse mx-auto mt-1"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card skeleton */}
+        <div className="flex items-center justify-center px-4 pt-8">
+          <div className="max-w-lg w-full bg-white rounded-2xl shadow-lg border border-gray-200 p-6 sm:p-8">
+            {/* Image placeholder */}
+            <div className="w-full h-48 sm:h-56 bg-gray-200 rounded-xl animate-pulse mb-6"></div>
+            {/* Text lines */}
+            <div className="space-y-3">
+              <div className="h-6 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+              <div className="h-5 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+            </div>
+            {/* Button placeholder */}
+            <div className="mt-6 flex justify-between items-center">
+              <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-10 w-24 bg-gray-200 rounded-lg animate-pulse"></div>
+            </div>
+          </div>
         </div>
       </div>
     );
