@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocale } from '../hooks/useLocale';
 import { CARD_TYPES, AUDIO } from '../constants/theme';
 
-const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) => {
+const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onScoreUpdate }) => {
   const [showIPA, setShowIPA] = useState(false);
   const [audioElement, setAudioElement] = useState(null);
   const [fillBlankAnswer, setFillBlankAnswer] = useState('');
@@ -70,10 +70,18 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards }) =>
     const isCorrect = fillBlankAnswer.trim().toLowerCase() === (card.correct_answer || '').toLowerCase();
     setFillBlankCorrect(isCorrect);
     setFillBlankSubmitted(true);
-    if (!isCorrect) {
-      setFailedAttempts(prev => prev + 1);
+    if (isCorrect) {
+      // Report correct on first successful submission
+      if (onScoreUpdate) onScoreUpdate(card.id, true);
+    } else {
+      const newAttempts = failedAttempts + 1;
+      setFailedAttempts(newAttempts);
       setIsShaking(true);
       setTimeout(() => setIsShaking(false), 500);
+      // After 2 failed attempts the answer is revealed — mark as incorrect
+      if (newAttempts >= 2) {
+        if (onScoreUpdate) onScoreUpdate(card.id, false);
+      }
     }
   };
 

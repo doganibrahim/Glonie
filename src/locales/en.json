@@ -42,6 +42,7 @@
   "completion": {
     "title": "Lesson Complete!",
     "message": "Great job! You've completed all {count} exercises.",
+    "score": "{correct}/{total} correct",
     "practiceAgain": "Practice Again",
     "chooseAnother": "Choose Another Lesson"
   },

@@ -10,6 +10,7 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lessonComplete, setLessonComplete] = useState(false);
+  const [score, setScore] = useState({ correct: 0, incorrect: 0, answered: {} });
   const { t } = useLocale();
 
   useEffect(() => {
@@ -27,6 +28,16 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
             setCurrentCardIndex(savedIndex);
           }
         }
+
+        // Restore score from localStorage
+        const savedScore = localStorage.getItem(`lesson_score_${lessonId}`);
+        if (savedScore) {
+          try {
+            setScore(JSON.parse(savedScore));
+          } catch (_) {
+            // ignore corrupted data
+          }
+        }
       } catch (err) {
         setError('Failed to load lesson');
         console.error('Error fetching lesson:', err);
@@ -39,6 +50,20 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
       fetchLesson();
     }
   }, [lessonId]);
+
+  const handleScoreUpdate = (cardId, isCorrect) => {
+    setScore((prev) => {
+      // Prevent double-counting the same card
+      if (prev.answered[cardId] !== undefined) return prev;
+      const updated = {
+        correct: prev.correct + (isCorrect ? 1 : 0),
+        incorrect: prev.incorrect + (isCorrect ? 0 : 1),
+        answered: { ...prev.answered, [cardId]: isCorrect },
+      };
+      localStorage.setItem(`lesson_score_${lessonId}`, JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   const handleNext = () => {
     if (currentCardIndex < lesson.cards.length - 1) {
@@ -63,7 +88,9 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
   const handleRestart = () => {
     setCurrentCardIndex(0);
     setLessonComplete(false);
+    setScore({ correct: 0, incorrect: 0, answered: {} });
     localStorage.setItem(`lesson_progress_${lessonId}`, '0');
+    localStorage.removeItem(`lesson_score_${lessonId}`);
   };
 
   // Fire confetti when lesson is completed
@@ -138,6 +165,15 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
           <p className="text-gray-600 mb-6">
             {t('completion.message', { count: lesson.cards.length })}
           </p>
+
+          {/* Score Summary */}
+          {(score.correct + score.incorrect) > 0 && (
+            <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <p className="text-lg font-semibold text-emerald-700">
+                {t('completion.score', { correct: score.correct, total: score.correct + score.incorrect })}
+              </p>
+            </div>
+          )}
           
           <div className="space-y-3">
             <button
@@ -206,6 +242,7 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
         onPrevious={handlePrevious}
         currentIndex={currentCardIndex}
         totalCards={lesson.cards.length}
+        onScoreUpdate={handleScoreUpdate}
       />
     </div>
   );
