@@ -296,6 +296,111 @@ cards
 
 ---
 
+<details>
+  <summary><h2>Burndown Chart</h2></summary>
+
+![Burndown](src/assets/sprint_2/burndown_chart.png)
+
+</details>
+
+---
+
+<details>
+  <summary><h2>Database Schema</h2></summary>
+
+![Schema](src/assets/sprint_2/db_schema.png)
+
+**Tables (updated in Sprint 2):**
+
+```
+lessons
+├── id (PK, Integer)
+├── order_index (Integer, unique)
+└── title (String)
+
+cards
+├── id (PK, Integer)
+├── lesson_id (FK → lessons.id, CASCADE)
+├── order_index (Integer)
+├── image_url (String)
+├── audio_url (String)
+├── text_target (String)
+├── text_ipa (String)
+├── card_type (String: STORY | FILL_BLANK | SPEECH)
+└── correct_answer (String, nullable) ← NEW: used for FILL_BLANK validation
+```
+
+</details>
+
+---
+
+- **Sprint Notes:**
+  * It was decided to implement `FILL_BLANK` as the primary interactive card type with retry-based feedback.
+  * It was decided to use `localStorage` for all user state (progress, scores, completion, shuffle preference) — no backend auth required.
+  * It was decided to add a `WordBank` vocabulary reference page for spaced repetition review.
+  * It was decided to add `canvas-confetti` for lesson completion celebration feedback.
+  * It was decided to expand curriculum from 1 chapter (4 lessons) to 3 chapters (11 lessons).
+  * It was decided to implement sequential lesson unlock — lesson N must be completed before N+1 is accessible.
+  * It was decided to defer full Speech API integration to Sprint 3 (SPEECH card type added but recognition not wired).
+  * AI-assisted pair programming continued via _`Kiro`_.
+
+- **Expected point completion within Sprint:**
+  * `12` tasks
+
+- **Point Completion Logic:**
+  * Sprint 2 focused on interactivity, content expansion, and gamification elements. The core fill-blank exercise flow, vocabulary bank, score tracking, and mobile responsiveness were delivered. Speech recognition was stubbed but deferred.
+
+- **Sprint Review:**
+  * Fill-the-blank interactive input is functional: template parsing, input validation, shake animation on error, answer reveal after 2 failed attempts.
+  * WordBank vocabulary page aggregates all learned words with filtering, shuffle mode, and per-word audio playback.
+  * Score tracking per lesson with correct/incorrect counters and localStorage persistence.
+  * Confetti animation fires on lesson completion for positive reinforcement.
+  * Curriculum expanded to 11 lessons across 3 chapters with 57 new audio files and corresponding images.
+  * Mobile responsiveness improved across all components with `sm:` breakpoint utilities.
+  * Loading skeleton screens added for better perceived performance.
+  * Environment-aware API URL via `.env` configuration.
+
+- **Sprint Review Participants:**
+  * `İbrahim :D`
+
+- **Sprint Retrospective:**
+  * It was decided to implement Speech Recognition API in Sprint 3 for the SPEECH card type.
+  * It was decided to explore deployment options (Vercel + Railway or similar) in Sprint 3.
+  * It was decided to add user authentication if multi-device sync is needed in future.
+  * It was decided that the current localStorage approach works well for MVP but has no cross-device capability.
+  * It was decided to add more visual feedback and animations to keep learners engaged.
+  * Commit frequency improved compared to Sprint 1 — smaller, more atomic commits.
+
+---
+
+**Lessons Learned:**
+
+| Issue | Root Cause | Action for Sprint 3 |
+|-------|-----------|---------------------|
+| Fill-blank validation edge cases (casing, whitespace) | Initial strict comparison | Normalized with `.trim().toLowerCase()` |
+| Audio autoplay blocked on mobile | Browser policy requires user interaction | Skip auto-play for SPEECH type, manual play fallback |
+| localStorage growing with progress data | No cleanup mechanism | Consider periodic cleanup or size limit |
+| Shuffle state resets on page reload despite persistence | Fisher-Yates generates new order each mount | Stored shuffle preference, re-shuffle on toggle only |
+
+---
+
+**Git History:**
+
+| Commit | Date | Message |
+|--------|------|---------|
+| `21c7739` | Jul 05 | make API URL environment aware |
+| `88a4fc7` | Jul 12 | revise readme and add backlog for sprint_2 |
+| `c5b8fd0` | Jul 12 | implement fill-the-blank interactive input with answer validation |
+| `e2b1c75` | Jul 14 | add fill-blank interaction with validation feedback and fix curriculum order |
+| `bb1b557` | Jul 14 | build vocabulary book page |
+| `37142ff` | Jul 14 | implement card shuffle mode |
+| `b4d9931` | Jul 14 | add confetti as lesson completion animation |
+| `16b194d` | Jul 18 | add score tracking per lesson |
+| `4207088` | Jul 18 | improve mobile responsiveness |
+| `2234db0` | Jul 18 | add loading skeleton screens |
+| `f1f66c2` | Jul 20 | complete curriculum content: lesson 1, 2, and 3 |
+| `6f9cf41` | Jul 20 | add new audios |
+
 </details>
 
 ---
@@ -308,20 +413,21 @@ glonie/
 ├── backend/
 │   ├── assets/
 │   │   ├── images/          # Card images (placeholder + real)
-│   │   └── audio/           # TTS-generated audio files
+│   │   └── audio/           # TTS-generated audio files (57 files)
 │   ├── database.py          # SQLAlchemy models + engine
 │   ├── schemas.py           # Pydantic serialization schemas
 │   ├── crud.py              # Database query functions
 │   ├── main.py              # FastAPI app, routes, CORS, static files
-│   ├── seed.py              # Database seeding script
+│   ├── seed.py              # Database seeding script (3 chapters, 11 lessons)
 │   └── glonie.db            # SQLite database file
 ├── src/
 │   ├── components/
-│   │   ├── LessonSelect.jsx # Lesson list with lock/unlock states
-│   │   ├── LessonLearning.jsx # Lesson flow manager
-│   │   └── LearningCard.jsx # Card display + audio + IPA
+│   │   ├── LessonSelect.jsx   # Lesson list with lock/unlock states
+│   │   ├── LessonLearning.jsx # Lesson flow manager + score tracking
+│   │   ├── LearningCard.jsx   # Card display + audio + IPA + fill-blank
+│   │   └── WordBank.jsx       # Vocabulary reference page with filter/shuffle
 │   ├── constants/
-│   │   └── theme.js         # CARD_TYPES, LESSON_COLORS, AUDIO, API_BASE_URL
+│   │   └── theme.js         # CARD_TYPES, LESSON_COLORS, AUDIO
 │   ├── locales/
 │   │   └── en.json          # All UI strings
 │   ├── hooks/
@@ -333,6 +439,7 @@ glonie/
 │   │   └── global.css       # Tailwind directives
 │   ├── App.jsx              # Root component, view routing
 │   └── main.jsx             # React entry point
+├── .env                     # Environment variables (VITE_API_BASE_URL)
 ├── package.json
 ├── vite.config.js
 ├── tailwind.config.js
