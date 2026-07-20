@@ -345,10 +345,10 @@ cards
   * AI-assisted pair programming continued via _`Kiro`_.
 
 - **Expected point completion within Sprint:**
-  * `12` tasks
+  * `13` tasks — `12` completed, `1` remaining (Task 6: Generate real images for lessons)
 
 - **Point Completion Logic:**
-  * Sprint 2 focused on interactivity, content expansion, and gamification elements. The core fill-blank exercise flow, vocabulary bank, score tracking, and mobile responsiveness were delivered. Speech recognition was stubbed but deferred.
+  * Sprint 2 focused on interactivity, content expansion, and gamification elements. 12 out of 13 tasks were delivered. Task 6 (replacing placeholder images with real contextual visuals) was deferred to Sprint 3 due to time constraints.
 
 - **Sprint Review:**
   * Fill-the-blank interactive input is functional: template parsing, input validation, shake animation on error, answer reveal after 2 failed attempts.
