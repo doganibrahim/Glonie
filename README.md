@@ -26,6 +26,71 @@ The architecture follows a local-first hybrid approach, majority of the app runs
 ---
 
 <details>
+  <summary><h2>Setup Instructions</h2></summary>
+
+### Prerequisites
+- Node.js 18+
+- Python 3.10+
+
+### 1. Clone & Install
+
+```bash
+git clone <repo-url>
+cd glonie
+
+# Frontend dependencies
+npm install
+
+# Backend dependencies (use a virtual environment)
+python -m venv .venv
+.venv\Scripts\activate   # Windows
+# source .venv/bin/activate  # macOS/Linux
+pip install fastapi uvicorn sqlalchemy pyttsx3
+```
+
+### 2. Environment Variables
+
+```bash
+# Copy the example env file and edit as needed
+cp .env.example .env
+```
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VITE_API_BASE_URL` | Backend API URL used by the frontend | `http://localhost:8000` |
+
+### 3. Seed the Database
+
+```bash
+cd backend
+python seed.py
+```
+
+### 4. Generate Audio Files (optional, for new lessons)
+
+```bash
+cd backend/assets
+python create_audio_chapters_2_3.py
+```
+
+### 5. Run
+
+```bash
+# Terminal 1 - Backend
+cd backend
+uvicorn main:app --reload
+
+# Terminal 2 - Frontend
+npm run dev
+```
+
+Open `http://localhost:5173` in your browser.
+
+</details>
+
+---
+
+<details>
   <summary><h2>Tech Stack</h2></summary>
 
 | Layer | Technology | Role |
@@ -200,11 +265,32 @@ cards
 ---
 
 <details>
+  <summary><h2>App Screenshots</h2></summary>
+
+![screenshot_1](src/assets/sprint_2/screenshot_1.png)
+
+---
+
+![screenshot_2](src/assets/sprint_2/screenshot_2.png)
+
+---
+
+![screenshot_3](src/assets/sprint_2/screenshot_3.png)
+
+</details>
+
+---
+
+<details>
   <summary><h2>Backlog</h2></summary>
 
 🔗 [Product Backlog (Miro)](https://miro.com/app/board/uXjVHD7M_YM=/?share_link_id=120371824479)
 
-![backlog_1](src/sprint_2/backlog_1.png)
+![backlog_1](src/assets/sprint_2/backlog_1.png)
+
+![backlog_2](src/assets/sprint_2/backlog_2.png)
+
+![backlog_3](src/assets/sprint_2/backlog_3.png)
 
 </details>
 
