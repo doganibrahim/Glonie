@@ -12,6 +12,10 @@ export const CARD_TYPES = {
     label: 'speech',
     color: 'bg-violet-500',
   },
+  LISTENING: {
+    label: 'listening',
+    color: 'bg-orange-500',
+  },
   DEFAULT: {
     label: 'learning',
     color: 'bg-gray-500',
