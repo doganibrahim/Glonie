@@ -121,17 +121,17 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
       const showCorrectAnswer = !fillBlankCorrect && failedAttempts >= 2 && fillBlankSubmitted;
       return (
         <div className="text-center">
-          <p className={`text-xl sm:text-2xl text-gray-800 leading-relaxed font-medium ${isShaking ? 'animate-shake' : ''}`}>
+          <p className={`text-xl sm:text-2xl text-slate-800 dark:text-slate-100 leading-relaxed font-medium ${isShaking ? 'animate-shake' : ''}`}>
             {parts[0]}
             {fillBlankSubmitted ? (
               <span className={`inline-flex items-center px-1.5 py-0.5 sm:px-2 sm:py-1 mx-1 rounded-lg font-bold text-base sm:text-xl ${
                 fillBlankCorrect 
-                  ? 'bg-green-100 text-green-700 border border-green-300' 
-                  : 'bg-red-100 text-red-700 border border-red-300'
+                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700' 
+                  : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border border-rose-300 dark:border-rose-700'
               }`}>
                 {fillBlankAnswer}
                 {fillBlankCorrect && (
-                  <svg className="w-5 h-5 ml-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 ml-1 text-emerald-600 dark:text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                 )}
@@ -144,7 +144,7 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
                 onKeyDown={(e) => { if (e.key === 'Enter') handleFillBlankSubmit(e); }}
                 onClick={(e) => e.stopPropagation()}
                 placeholder=""
-                className="inline-block w-24 sm:w-32 h-8 px-2 mx-1 border-2 border-blue-300 rounded-lg text-center text-sm sm:text-base focus:outline-none focus:border-blue-500 bg-blue-50"
+                className="inline-block w-24 sm:w-32 h-9 px-2 mx-1 border-b-2 border-slate-300 dark:border-slate-600 rounded-none text-center text-base sm:text-lg font-medium focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-400 bg-transparent text-slate-900 dark:text-white transition-colors"
                 autoFocus
               />
             )}
@@ -153,21 +153,21 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
 
           {/* Feedback */}
           {fillBlankSubmitted && (
-            <div className={`mt-4 p-3 rounded-lg border ${
+            <div className={`mt-6 p-4 rounded-xl border ${
               fillBlankCorrect 
-                ? 'bg-green-50 border-green-200' 
-                : 'bg-red-50 border-red-200'
+                ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800' 
+                : 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800'
             }`}>
               {fillBlankCorrect ? (
                 <div className="flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  <p className="text-sm font-medium text-green-700">{t('learning.correct')}</p>
+                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">{t('learning.correct')}</p>
                 </div>
               ) : (
                 <>
-                  <p className="text-sm font-medium text-red-700">
+                  <p className="text-sm font-medium text-rose-700 dark:text-rose-300">
                     {showCorrectAnswer
                       ? t('learning.incorrect').replace('{answer}', card.correct_answer)
                       : t('learning.tryAgainHint').replace('{remaining}', String(2 - failedAttempts))}
@@ -175,7 +175,7 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
                   {!showCorrectAnswer && (
                     <button
                       onClick={(e) => { e.stopPropagation(); handleFillBlankRetry(); }}
-                      className="mt-2 px-4 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                      className="mt-3 px-5 py-2 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-700 hover:bg-rose-50 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-400 rounded-lg text-sm font-medium transition-colors"
                     >
                       {t('learning.tryAgain')}
                     </button>
@@ -189,7 +189,88 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
           {!fillBlankSubmitted && fillBlankAnswer.trim() && (
             <button
               onClick={(e) => { e.stopPropagation(); handleFillBlankSubmit(e); }}
-              className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+              className="mt-8 px-8 py-3 bg-slate-800 hover:bg-slate-900 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white rounded-xl text-sm font-bold tracking-wide transition-colors w-full sm:w-auto shadow-sm"
+            >
+              {t('learning.submit')}
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    if (card.card_type === 'LISTENING') {
+      const showCorrectAnswer = !fillBlankCorrect && failedAttempts >= 2 && fillBlankSubmitted;
+      return (
+        <div className="text-center w-full">
+          <div className="mb-6">
+            <button 
+              onClick={(e) => { e.stopPropagation(); handleAudioPlay(); }}
+              className="w-16 h-16 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full flex items-center justify-center mx-auto hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors shadow-sm"
+            >
+              <svg className="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+              </svg>
+            </button>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-3">Dinle ve duyduğunu yaz</p>
+          </div>
+          
+          <div className={isShaking ? 'animate-shake' : ''}>
+            {fillBlankSubmitted && fillBlankCorrect ? (
+              <p className="text-xl sm:text-2xl text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 py-4 rounded-xl">
+                {card.text_target}
+              </p>
+            ) : (
+              <textarea
+                value={fillBlankAnswer}
+                onChange={(e) => setFillBlankAnswer(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleFillBlankSubmit(e); } }}
+                onClick={(e) => e.stopPropagation()}
+                placeholder="Duyduğunu buraya yaz..."
+                className="w-full min-h-[100px] p-4 text-center text-lg font-medium border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 resize-none transition-shadow"
+                autoFocus
+              />
+            )}
+          </div>
+
+          {/* Feedback */}
+          {fillBlankSubmitted && (
+            <div className={`mt-6 p-4 rounded-xl border ${
+              fillBlankCorrect 
+                ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800' 
+                : 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800'
+            }`}>
+              {fillBlankCorrect ? (
+                <div className="flex items-center justify-center">
+                  <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">{t('learning.correct')}</p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-rose-700 dark:text-rose-300">
+                    {showCorrectAnswer
+                      ? t('learning.incorrect').replace('{answer}', card.text_target)
+                      : t('learning.tryAgainHint').replace('{remaining}', String(2 - failedAttempts))}
+                  </p>
+                  {!showCorrectAnswer && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleFillBlankRetry(); }}
+                      className="mt-3 px-5 py-2 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-700 hover:bg-rose-50 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-400 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      {t('learning.tryAgain')}
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Submit Button */}
+          {!fillBlankSubmitted && fillBlankAnswer.trim() && (
+            <button
+              onClick={(e) => { e.stopPropagation(); handleFillBlankSubmit(e); }}
+              className="mt-8 px-8 py-3 bg-slate-800 hover:bg-slate-900 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white rounded-xl text-sm font-bold tracking-wide transition-colors w-full sm:w-auto shadow-sm"
             >
               {t('learning.submit')}
             </button>
@@ -200,15 +281,15 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
 
     return (
       <div className="text-center">
-        <p className="text-xl sm:text-2xl text-gray-800 leading-relaxed font-medium">
+        <p className="text-xl sm:text-2xl text-slate-800 dark:text-slate-100 leading-relaxed font-medium">
           {card.text_target}
         </p>
         {card.card_type === 'SPEECH' && (
-          <div className="mt-6" onClick={(e) => e.stopPropagation()}>
+          <div className="mt-8" onClick={(e) => e.stopPropagation()}>
             {/* ── Unsupported browser fallback ── */}
             {!speech.isSupported ? (
               <div className="flex flex-col items-center gap-3">
-                <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 text-center">
+                <p className="text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-4 py-3 text-center">
                   {t('learning.speechNotSupported')}
                 </p>
                 {!speechScoreReported && (
@@ -217,33 +298,33 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
                       setSpeechScoreReported(true);
                       if (onScoreUpdate) onScoreUpdate(card.id, true);
                     }}
-                    className="px-5 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    className="px-6 py-2.5 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-xl text-sm font-medium transition-colors"
                   >
                     {t('learning.manualVerify')}
                   </button>
                 )}
                 {speechScoreReported && (
-                  <span className="text-sm text-green-700 font-medium">✓ {t('learning.correctSpeech')}</span>
+                  <span className="text-sm text-emerald-700 dark:text-emerald-400 font-medium">✓ {t('learning.correctSpeech')}</span>
                 )}
               </div>
             ) : (
               <div className="flex flex-col items-center gap-4">
                 {/* Hint text */}
                 {speech.status === 'idle' && (
-                  <p className="text-xs text-gray-500">{t('learning.speakNow')}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">{t('learning.speakNow')}</p>
                 )}
 
                 {/* Mic permission denied */}
                 {speech.permissionDenied && (
-                  <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-center">
+                  <p className="text-sm text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg px-4 py-3 text-center">
                     {t('learning.micPermissionDenied')}
                   </p>
                 )}
 
                 {/* Network error — prominent manual fallback */}
                 {speech.isNetworkError && (
-                  <div className="w-full p-4 bg-amber-50 border border-amber-200 rounded-lg text-center flex flex-col items-center gap-3">
-                    <p className="text-sm text-amber-800">
+                  <div className="w-full p-5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl text-center flex flex-col items-center gap-3">
+                    <p className="text-sm font-medium text-amber-800 dark:text-amber-400">
                       🌐 {t('learning.networkError')}
                     </p>
                     {!speechScoreReported ? (
@@ -252,42 +333,42 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
                           setSpeechScoreReported(true);
                           if (onScoreUpdate) onScoreUpdate(card.id, true);
                         }}
-                        className="px-5 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition-colors"
+                        className="px-6 py-2.5 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-xl text-sm font-medium transition-colors"
                       >
                         {t('learning.manualVerify')}
                       </button>
                     ) : (
-                      <span className="text-sm text-green-700 font-medium">✓ {t('learning.correctSpeech')}</span>
+                      <span className="text-sm text-emerald-700 dark:text-emerald-400 font-medium">✓ {t('learning.correctSpeech')}</span>
                     )}
                   </div>
                 )}
 
                 {/* Other (non-network, non-permission) errors */}
                 {speech.status === 'error' && !speech.permissionDenied && !speech.isNetworkError && speech.errorMessage && (
-                  <p className="text-sm text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-4 py-2 text-center">
+                  <p className="text-sm text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg px-4 py-3 text-center">
                     {t(`learning.${speech.errorMessage}`) || speech.errorMessage}
                   </p>
                 )}
 
                 {/* Animated mic button — hide when network error already showing manual fallback */}
                 {speech.status !== 'done' && !speech.isNetworkError && (
-                  <div className="flex flex-col items-center gap-2 w-full">
+                  <div className="flex flex-col items-center gap-3 w-full">
                     <button
                       disabled={speech.status === 'processing'}
                       onClick={speech.status === 'listening' ? speech.stopListening : speech.startListening}
-                      className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-4 ${
+                      className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-4 ${
                         speech.status === 'listening'
-                          ? 'bg-red-500 hover:bg-red-600 focus:ring-red-200 shadow-lg shadow-red-200'
+                          ? 'bg-rose-500 hover:bg-rose-600 focus:ring-rose-200 dark:focus:ring-rose-900 shadow-lg shadow-rose-200 dark:shadow-rose-900'
                           : speech.status === 'processing'
-                            ? 'bg-violet-300 cursor-not-allowed'
-                            : 'bg-violet-600 hover:bg-violet-700 focus:ring-violet-200 shadow-md'
+                            ? 'bg-slate-300 dark:bg-slate-600 cursor-not-allowed'
+                            : 'bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 focus:ring-slate-200 dark:focus:ring-slate-800 shadow-md'
                       }`}
                     >
                       {/* Pulse rings while listening */}
                       {speech.status === 'listening' && (
                         <>
-                          <span className="absolute inset-0 rounded-full bg-red-400 animate-ping opacity-40" />
-                          <span className="absolute inset-[-6px] rounded-full border-2 border-red-300 animate-pulse" />
+                          <span className="absolute inset-0 rounded-full bg-rose-400 animate-ping opacity-40" />
+                          <span className="absolute inset-[-6px] rounded-full border-2 border-rose-300 dark:border-rose-700 animate-pulse" />
                         </>
                       )}
                       <svg className="w-7 h-7 text-white relative z-10" fill="currentColor" viewBox="0 0 20 20">
@@ -297,9 +378,9 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
 
                     {/* Countdown progress bar */}
                     {speech.status === 'listening' && (
-                      <div className="w-24 h-1 bg-red-100 rounded-full overflow-hidden">
+                      <div className="w-24 h-1.5 bg-rose-100 dark:bg-rose-900/50 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-red-400 rounded-full"
+                          className="h-full bg-rose-500 rounded-full"
                           style={{ width: `${(speech.recordingSeconds / 8) * 100}%`, transition: 'width 0.1s linear' }}
                         />
                       </div>
@@ -307,7 +388,7 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
 
                     {/* Warmup notice — only on first-ever transcribe */}
                     {speech.status === 'processing' && speech.isWarmingUp && (
-                      <p className="text-xs text-gray-400 italic text-center px-2">
+                      <p className="text-xs text-slate-400 dark:text-slate-500 italic text-center px-2">
                         {t('learning.warmingUp')}
                       </p>
                     )}
@@ -317,10 +398,10 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
                 {/* Status label — hide when network error or permission denied already shows its own message */}
                 {!speech.isNetworkError && !speech.permissionDenied && (
                   <p className={`text-sm font-medium ${
-                    speech.status === 'listening' ? 'text-red-600' :
-                    speech.status === 'done' && speech.isCorrect ? 'text-green-600' :
-                    speech.status === 'done' && !speech.isCorrect ? 'text-red-600' :
-                    'text-gray-500'
+                    speech.status === 'listening' ? 'text-rose-600 dark:text-rose-400' :
+                    speech.status === 'done' && speech.isCorrect ? 'text-emerald-600 dark:text-emerald-400' :
+                    speech.status === 'done' && !speech.isCorrect ? 'text-rose-600 dark:text-rose-400' :
+                    'text-slate-500 dark:text-slate-400'
                   }`}>
                     {speech.status === 'idle'       && t('learning.tapToSpeak')}
                     {speech.status === 'listening'  && t('learning.listening')}
@@ -335,31 +416,53 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
 
                 {/* Live transcript while listening */}
                 {speech.status === 'listening' && speech.transcript && (
-                  <p className="text-xs text-gray-400 italic">"{speech.transcript}"</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 italic">"{speech.transcript}"</p>
                 )}
 
                 {/* Result feedback & actions */}
                 {speech.status === 'done' && (
-                  <div className={`w-full p-3 rounded-lg border text-center ${
+                  <div className={`w-full p-4 rounded-xl border text-center ${
                     speech.isCorrect
-                      ? 'bg-green-50 border-green-200'
-                      : 'bg-red-50 border-red-200'
+                      ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
+                      : speech.similarityScore >= 60
+                        ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+                        : 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800'
                   }`}>
                     {speech.isCorrect ? (
                       <div className="flex items-center justify-center gap-2">
-                        <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
-                        <span className="text-sm font-semibold text-green-700">{t('learning.correctSpeech')}</span>
+                        <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                          {t('learning.correctSpeech')} {speech.similarityScore !== null && `(%${speech.similarityScore})`}
+                        </span>
                       </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-2">
-                        <p className="text-sm text-red-700">
-                          {t('learning.incorrectSpeech').replace('{heard}', speech.transcript)}
+                    ) : speech.similarityScore >= 60 ? (
+                      <div className="flex flex-col items-center gap-3">
+                        <p className="text-sm text-amber-800 dark:text-amber-300 font-medium">
+                          Neredeyse oldu! (%{speech.similarityScore})
+                        </p>
+                        <p className="text-sm text-amber-700 dark:text-amber-400/80 bg-white dark:bg-slate-900/50 px-3 py-1.5 rounded-lg border border-amber-100 dark:border-amber-800/50">
+                          "{speech.transcript}"
                         </p>
                         <button
                           onClick={speech.reset}
-                          className="px-4 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                          className="px-5 py-2 bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 rounded-lg text-sm font-medium transition-colors mt-2"
+                        >
+                          {t('learning.tryAgainSpeech')}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-3">
+                        <p className="text-sm text-rose-700 dark:text-rose-300 font-medium">
+                          {t('learning.incorrectSpeech').replace('{heard}', speech.transcript)}
+                        </p>
+                        {speech.similarityScore !== null && (
+                          <p className="text-xs text-rose-600 dark:text-rose-400">Eşleşme: %{speech.similarityScore}</p>
+                        )}
+                        <button
+                          onClick={speech.reset}
+                          className="px-5 py-2 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-700 hover:bg-rose-50 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-400 rounded-lg text-sm font-medium transition-colors mt-1"
                         >
                           {t('learning.tryAgainSpeech')}
                         </button>
@@ -375,7 +478,7 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
                       setSpeechScoreReported(true);
                       if (onScoreUpdate) onScoreUpdate(card.id, true);
                     }}
-                    className="text-xs text-gray-400 underline hover:text-gray-600 transition-colors mt-1"
+                    className="text-xs text-slate-400 dark:text-slate-500 underline hover:text-slate-600 dark:hover:text-slate-300 transition-colors mt-2"
                   >
                     {t('learning.manualVerify')}
                   </button>
@@ -396,35 +499,35 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
   const cardConfig = getCardTypeConfig(card.card_type);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-2 py-3 sm:p-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center px-4 py-6 sm:p-6 font-sans">
       <div className="w-full max-w-lg">
         {/* Progress Bar */}
         <div className="mb-4 sm:mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-xs sm:text-sm text-gray-600">{t('learning.progress')}</span>
-            <span className="text-xs sm:text-sm text-gray-600">
+            <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">{t('learning.progress')}</span>
+            <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
               {currentIndex + 1} / {totalCards}
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2">
             <div
-              className="bg-green-500 h-2 rounded-full transition-all duration-500"
+              className="bg-emerald-500 dark:bg-emerald-400 h-2 rounded-full transition-all duration-500"
               style={{ width: `${((currentIndex + 1) / totalCards) * 100}%` }}
             ></div>
           </div>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transform transition-all duration-200">
           {/* Card Header */}
-          <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/50">
             <div className="flex items-center min-w-0">
-              <div className={`w-3 h-3 rounded-full mr-2 shrink-0 ${cardConfig.color}`}></div>
-              <span className="font-medium text-gray-700 text-sm sm:text-base truncate">{t(`cardTypes.${cardConfig.label}`)}</span>
+              <div className={`w-3 h-3 rounded-full mr-3 shrink-0 ${cardConfig.color}`}></div>
+              <span className="font-semibold text-slate-700 dark:text-slate-300 text-sm sm:text-base truncate">{t(`cardTypes.${cardConfig.label}`)}</span>
             </div>
             <button
               onClick={() => setShowIPA(!showIPA)}
-              className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium shrink-0 ml-2"
+              className="text-xs sm:text-sm text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 font-medium shrink-0 ml-3 transition-colors"
             >
               {showIPA ? t('learning.hideIPA') : t('learning.showIPA')}
             </button>
@@ -432,40 +535,40 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
 
           {/* Card Content */}
           <div 
-            className="p-3 sm:p-6 cursor-pointer"
+            className="p-5 sm:p-8 cursor-pointer"
             onClick={handleCardClick}
           >
             {/* Image */}
-            <div className="mb-4 sm:mb-6">
-              <div className="w-full h-32 sm:h-48 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+            <div className="mb-6 sm:mb-8">
+              <div className="w-full h-40 sm:h-52 bg-slate-50 dark:bg-slate-900/50 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 flex items-center justify-center p-2">
                 <img
                   src={card.image_url}
                   alt={card.text_target}
-                  className="w-full h-full object-contain"
+                  className="max-w-full max-h-full object-contain rounded-md"
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
                   }}
                 />
-                <div className="w-full h-full flex items-center justify-center text-gray-500" style={{display: 'none'}}>
+                <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-600" style={{display: 'none'}}>
                   <div className="text-center">
-                    <div className="text-3xl mb-2">📷</div>
-                    <p className="text-sm text-gray-600">{card.text_target}</p>
+                    <div className="text-4xl mb-3 opacity-50">📷</div>
+                    <p className="text-sm font-medium">{card.text_target}</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Text Content */}
-            <div className="mb-4 sm:mb-6">
+            <div className="mb-2">
               {renderCardContent()}
               
               {/* IPA Transcription */}
               {showIPA && (
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="mt-6 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800">
                   <div className="text-center">
-                    <p className="text-sm text-blue-700 mb-1">{t('learning.pronunciation')}</p>
-                    <p className="text-blue-800 font-mono text-lg">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">{t('learning.pronunciation')}</p>
+                    <p className="text-slate-700 dark:text-slate-300 font-mono text-lg tracking-wide">
                       {card.text_ipa}
                     </p>
                   </div>
@@ -475,29 +578,28 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
           </div>
 
           {/* Navigation */}
-          <div className="flex justify-between items-center p-2 sm:p-4 bg-gray-50 border-t border-gray-200">
+          <div className="flex justify-between items-center p-4 sm:p-5 bg-slate-50/80 dark:bg-slate-900/30 border-t border-slate-100 dark:border-slate-700/50">
             <button
               onClick={onPrevious}
               disabled={currentIndex === 0}
-              className="flex items-center px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base text-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed hover:text-gray-800 font-medium shrink-0"
+              className="flex items-center px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base text-slate-500 dark:text-slate-400 disabled:opacity-30 disabled:cursor-not-allowed hover:text-slate-800 dark:hover:text-slate-200 font-medium shrink-0 transition-colors"
             >
-              <svg className="w-4 h-4 mr-0.5 sm:mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              <span className="hidden sm:inline">Previous</span>
-              <span className="sm:hidden">Prev</span>
+              <span className="hidden sm:inline">Önceki</span>
             </button>
 
-            <div className="flex flex-wrap justify-center gap-0.5 sm:gap-1 max-w-[40%] overflow-hidden">
+            <div className="flex flex-wrap justify-center gap-1 sm:gap-1.5 max-w-[40%] overflow-hidden px-2">
               {Array.from({ length: totalCards }).map((_, index) => (
                 <div
                   key={index}
-                  className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
+                  className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-colors duration-300 ${
                     index === currentIndex 
-                      ? 'bg-green-500' 
+                      ? 'bg-emerald-500 dark:bg-emerald-400' 
                       : index < currentIndex 
-                        ? 'bg-green-300' 
-                        : 'bg-gray-300'
+                        ? 'bg-emerald-200 dark:bg-emerald-900' 
+                        : 'bg-slate-200 dark:bg-slate-700'
                   }`}
                 />
               ))}
@@ -507,22 +609,25 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
               onClick={() => {
                 onNext();
               }}
-              className={`flex items-center px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base font-medium shrink-0 ${
+              className={`flex items-center px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base font-semibold shrink-0 transition-colors ${
                 currentIndex === totalCards - 1
-                  ? 'text-green-600 hover:text-green-700'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300'
+                  : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              {currentIndex === totalCards - 1 ? t('learning.finish') : t('learning.next')}
-              <svg className="w-4 h-4 ml-0.5 sm:ml-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-              </svg>
+              <span className="hidden sm:inline">{currentIndex === totalCards - 1 ? t('learning.finish') : t('learning.next')}</span>
+              <span className="sm:hidden">{currentIndex === totalCards - 1 ? 'Bitir' : 'İleri'}</span>
+              {currentIndex !== totalCards - 1 && (
+                <svg className="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              )}
             </button>
           </div>
         </div>
 
         {/* Instructions */}
-        <div className="mt-4 text-center text-sm text-gray-500">
+        <div className="mt-6 text-center text-sm font-medium text-slate-400 dark:text-slate-500">
           {t('learning.instructions')}
         </div>
       </div>

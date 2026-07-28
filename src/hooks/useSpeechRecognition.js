@@ -4,7 +4,44 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 // Normalise for comparison: lowercase, trim, strip punctuation
 const normalise = (str = '') =>
-  str.toLowerCase().trim().replace(/[.,!?;:'\"-]/g, '');
+  str.toLowerCase().trim().replace(/[.,!?;:'"¿¡-]/g, '');
+
+// Levenshtein distance algorithm
+const getLevenshteinDistance = (a, b) => {
+  const matrix = [];
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          Math.min(matrix[i][j - 1] + 1, // insertion
+          matrix[i - 1][j] + 1) // deletion
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+};
+
+const getSimilarityScore = (target, heard) => {
+  const t = normalise(target);
+  const h = normalise(heard);
+  if (t.length === 0) return 0;
+  if (t === h) return 100;
+  
+  const distance = getLevenshteinDistance(t, h);
+  const maxLen = Math.max(t.length, h.length);
+  const score = Math.max(0, 100 - (distance / maxLen) * 100);
+  return Math.round(score);
+};
 
 const MAX_DURATION_MS   = 8000;  // hard cap: stop after 8 seconds
 const SILENCE_THRESHOLD = 0.01;  // RMS amplitude below this = silence
@@ -37,6 +74,7 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
   const [status, setStatus]               = useState('idle'); // idle | listening | processing | done | error
   const [transcript, setTranscript]       = useState('');
   const [isCorrect, setIsCorrect]         = useState(null);
+  const [similarityScore, setSimilarityScore] = useState(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [isNetworkError, setIsNetworkError]     = useState(false);
   const [errorMessage, setErrorMessage]   = useState('');
@@ -81,6 +119,7 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
     setStatus('listening');
     setTranscript('');
     setIsCorrect(null);
+    setSimilarityScore(null);
     setErrorMessage('');
     setPermissionDenied(false);
     setIsNetworkError(false);
@@ -233,10 +272,14 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
       const heard = (data.transcript || '').trim();
       setTranscript(heard);
 
-      const correct = normalise(heard) === normalise(targetText);
+      const score = getSimilarityScore(targetText, heard);
+      // We consider it correct if similarity is >= 80%
+      const correct = score >= 80;
+      
+      setSimilarityScore(score);
       setIsCorrect(correct);
       setStatus('done');
-      if (onResultRef.current) onResultRef.current(correct, heard);
+      if (onResultRef.current) onResultRef.current(correct, heard, score);
     } catch (err) {
       setIsWarmingUp(false);
       if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
@@ -267,6 +310,7 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
     setStatus('idle');
     setTranscript('');
     setIsCorrect(null);
+    setSimilarityScore(null);
     setErrorMessage('');
     setPermissionDenied(false);
     setIsNetworkError(false);
@@ -279,6 +323,7 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
     status,
     transcript,
     isCorrect,
+    similarityScore,
     permissionDenied,
     isNetworkError,
     errorMessage,
