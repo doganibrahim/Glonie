@@ -271,28 +271,47 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
 
                 {/* Animated mic button — hide when network error already showing manual fallback */}
                 {speech.status !== 'done' && !speech.isNetworkError && (
-                  <button
-                    disabled={speech.status === 'processing'}
-                    onClick={speech.status === 'listening' ? speech.stopListening : speech.startListening}
-                    className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-4 ${
-                      speech.status === 'listening'
-                        ? 'bg-red-500 hover:bg-red-600 focus:ring-red-200 shadow-lg shadow-red-200'
-                        : speech.status === 'processing'
-                          ? 'bg-violet-300 cursor-not-allowed'
-                          : 'bg-violet-600 hover:bg-violet-700 focus:ring-violet-200 shadow-md'
-                    }`}
-                  >
-                    {/* Pulse rings while listening */}
+                  <div className="flex flex-col items-center gap-2 w-full">
+                    <button
+                      disabled={speech.status === 'processing'}
+                      onClick={speech.status === 'listening' ? speech.stopListening : speech.startListening}
+                      className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-4 ${
+                        speech.status === 'listening'
+                          ? 'bg-red-500 hover:bg-red-600 focus:ring-red-200 shadow-lg shadow-red-200'
+                          : speech.status === 'processing'
+                            ? 'bg-violet-300 cursor-not-allowed'
+                            : 'bg-violet-600 hover:bg-violet-700 focus:ring-violet-200 shadow-md'
+                      }`}
+                    >
+                      {/* Pulse rings while listening */}
+                      {speech.status === 'listening' && (
+                        <>
+                          <span className="absolute inset-0 rounded-full bg-red-400 animate-ping opacity-40" />
+                          <span className="absolute inset-[-6px] rounded-full border-2 border-red-300 animate-pulse" />
+                        </>
+                      )}
+                      <svg className="w-7 h-7 text-white relative z-10" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+
+                    {/* Countdown progress bar */}
                     {speech.status === 'listening' && (
-                      <>
-                        <span className="absolute inset-0 rounded-full bg-red-400 animate-ping opacity-40" />
-                        <span className="absolute inset-[-6px] rounded-full border-2 border-red-300 animate-pulse" />
-                      </>
+                      <div className="w-24 h-1 bg-red-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-red-400 rounded-full"
+                          style={{ width: `${(speech.recordingSeconds / 8) * 100}%`, transition: 'width 0.1s linear' }}
+                        />
+                      </div>
                     )}
-                    <svg className="w-7 h-7 text-white relative z-10" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
-                    </svg>
-                  </button>
+
+                    {/* Warmup notice — only on first-ever transcribe */}
+                    {speech.status === 'processing' && speech.isWarmingUp && (
+                      <p className="text-xs text-gray-400 italic text-center px-2">
+                        {t('learning.warmingUp')}
+                      </p>
+                    )}
+                  </div>
                 )}
 
                 {/* Status label — hide when network error or permission denied already shows its own message */}

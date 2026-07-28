@@ -4,7 +4,11 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 // Normalise for comparison: lowercase, trim, strip punctuation
 const normalise = (str = '') =>
-  str.toLowerCase().trim().replace(/[.,!?;:'"-]/g, '');
+  str.toLowerCase().trim().replace(/[.,!?;:'\"-]/g, '');
+
+const MAX_DURATION_MS   = 8000;  // hard cap: stop after 8 seconds
+const SILENCE_THRESHOLD = 0.01;  // RMS amplitude below this = silence
+const SILENCE_MS        = 1500;  // stop after this many ms of silence
 
 /**
  * useSpeechRecognition — cross-browser implementation
@@ -13,6 +17,8 @@ const normalise = (str = '') =>
  *   1. Record audio with MediaRecorder (Firefox, Chrome, Safari, Arc — all supported)
  *   2. POST the audio blob to /api/transcribe (faster-whisper on backend)
  *   3. Compare returned transcript with targetText
+ *
+ * Auto-stop: 8s hard cap + 1.5s silence detection via AudioContext.
  *
  * @param {{ targetText: string, lang: string, onResult: function }} options
  */
@@ -28,21 +34,23 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
       : false)
   );
 
-  const [status, setStatus] = useState('idle'); // idle | listening | processing | done | error
-  const [transcript, setTranscript] = useState('');
-  const [isCorrect, setIsCorrect] = useState(null);
+  const [status, setStatus]               = useState('idle'); // idle | listening | processing | done | error
+  const [transcript, setTranscript]       = useState('');
+  const [isCorrect, setIsCorrect]         = useState(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
-  const [isNetworkError, setIsNetworkError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [isNetworkError, setIsNetworkError]     = useState(false);
+  const [errorMessage, setErrorMessage]   = useState('');
+  const [isWarmingUp, setIsWarmingUp]     = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0); // 0–8 for progress bar
 
   const mediaRecorderRef = useRef(null);
-  const chunksRef = useRef([]);
-  const streamRef = useRef(null);
-  const onResultRef = useRef(onResult);
-  // Keep onResultRef up to date without re-running effects
+  const chunksRef        = useRef([]);
+  const streamRef        = useRef(null);
+  const onResultRef      = useRef(onResult);
+  const autoStopRef      = useRef(null); // { maxTimer, silenceInterval, countdownInterval, audioCtx }
   onResultRef.current = onResult;
 
-  // Choose the best supported MIME type for MediaRecorder
+  // ── Choose the best supported MIME type ─────────────────────
   const getBestMimeType = () => {
     const candidates = [
       'audio/webm;codecs=opus',
@@ -54,6 +62,18 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
     return candidates.find((t) => MediaRecorder.isTypeSupported(t)) || '';
   };
 
+  // ── Clear all auto-stop timers & AudioContext ────────────────
+  const clearAutoStop = () => {
+    if (!autoStopRef.current) return;
+    const { maxTimer, silenceInterval, countdownInterval, audioCtx } = autoStopRef.current;
+    clearTimeout(maxTimer);
+    clearInterval(silenceInterval);
+    clearInterval(countdownInterval);
+    try { audioCtx?.close(); } catch (_) {}
+    autoStopRef.current = null;
+  };
+
+  // ── Start recording ──────────────────────────────────────────
   const startListening = useCallback(async () => {
     if (!isSupported) return;
     if (status === 'listening') return;
@@ -64,6 +84,7 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
     setErrorMessage('');
     setPermissionDenied(false);
     setIsNetworkError(false);
+    setRecordingSeconds(0);
     chunksRef.current = [];
 
     let stream;
@@ -78,13 +99,13 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
     }
 
     const mimeType = getBestMimeType();
-    const options = mimeType ? { mimeType } : {};
+    const options  = mimeType ? { mimeType } : {};
     let recorder;
 
     try {
       recorder = new MediaRecorder(stream, options);
     } catch {
-      // Retry without mimeType if the browser rejects it
+      // Retry without explicit mimeType if browser rejects it
       recorder = new MediaRecorder(stream);
     }
 
@@ -95,28 +116,82 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
     };
 
     recorder.onstop = async () => {
-      // Stop mic tracks
+      clearAutoStop();
       stream.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
 
       const blob = new Blob(chunksRef.current, {
         type: recorder.mimeType || 'audio/webm',
       });
-
       await transcribeBlob(blob, recorder.mimeType || 'audio/webm');
     };
 
     recorder.onerror = () => {
+      clearAutoStop();
       stream.getTracks().forEach((t) => t.stop());
       setErrorMessage('speechError');
       setStatus('error');
     };
 
     recorder.start();
+
+    // ── Auto-stop: countdown + max duration + silence ────────
+    const startTime = Date.now();
+
+    // 1) Smooth countdown progress (every 100ms)
+    const countdownInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      setRecordingSeconds(Math.min(elapsed / 1000, 8));
+    }, 100);
+
+    // 2) Hard max-duration cap
+    const maxTimer = setTimeout(() => {
+      if (mediaRecorderRef.current?.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+        setStatus('processing');
+      }
+    }, MAX_DURATION_MS);
+
+    // 3) Silence detection via AudioContext
+    let audioCtx = null;
+    let silenceInterval = null;
+    try {
+      audioCtx = new AudioContext();
+      const source   = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      const dataArr = new Float32Array(analyser.fftSize);
+      let silenceStart = null;
+
+      silenceInterval = setInterval(() => {
+        analyser.getFloatTimeDomainData(dataArr);
+        const rms = Math.sqrt(
+          dataArr.reduce((sum, v) => sum + v * v, 0) / dataArr.length
+        );
+        if (rms < SILENCE_THRESHOLD) {
+          if (!silenceStart) silenceStart = Date.now();
+          else if (Date.now() - silenceStart >= SILENCE_MS) {
+            if (mediaRecorderRef.current?.state !== 'inactive') {
+              mediaRecorderRef.current.stop();
+              setStatus('processing');
+            }
+          }
+        } else {
+          silenceStart = null;
+        }
+      }, 100);
+    } catch (_) {
+      // AudioContext unavailable — skip silence detection, max timer still works
+    }
+
+    autoStopRef.current = { maxTimer, silenceInterval, countdownInterval, audioCtx };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSupported, status]);
 
+  // ── Stop recording manually ──────────────────────────────────
   const stopListening = useCallback(() => {
+    clearAutoStop();
     if (
       mediaRecorderRef.current &&
       mediaRecorderRef.current.state !== 'inactive'
@@ -126,11 +201,16 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
     }
   }, []);
 
+  // ── Send audio to Whisper ────────────────────────────────────
   const transcribeBlob = async (blob, mimeType) => {
     setStatus('processing');
+    setRecordingSeconds(0);
+
+    // First-time warmup notice (Whisper model may still be loading)
+    const isFirst = !sessionStorage.getItem('whisper_warmed');
+    if (isFirst) setIsWarmingUp(true);
 
     const formData = new FormData();
-    // Extension hint helps the backend detect codec
     const ext = mimeType.includes('ogg') ? 'ogg' : mimeType.includes('mp4') ? 'mp4' : 'webm';
     formData.append('audio', blob, `recording.${ext}`);
     formData.append('lang', lang.split('-')[0]); // e.g. 'en'
@@ -141,12 +221,15 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
         body: formData,
       });
 
+      sessionStorage.setItem('whisper_warmed', '1');
+      setIsWarmingUp(false);
+
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.detail || `HTTP ${res.status}`);
       }
 
-      const data = await res.json();
+      const data  = await res.json();
       const heard = (data.transcript || '').trim();
       setTranscript(heard);
 
@@ -155,6 +238,7 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
       setStatus('done');
       if (onResultRef.current) onResultRef.current(correct, heard);
     } catch (err) {
+      setIsWarmingUp(false);
       if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
         setIsNetworkError(true);
         setErrorMessage('networkError');
@@ -165,7 +249,9 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
     }
   };
 
+  // ── Reset to idle ────────────────────────────────────────────
   const reset = useCallback(() => {
+    clearAutoStop();
     if (
       mediaRecorderRef.current &&
       mediaRecorderRef.current.state !== 'inactive'
@@ -184,6 +270,8 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
     setErrorMessage('');
     setPermissionDenied(false);
     setIsNetworkError(false);
+    setIsWarmingUp(false);
+    setRecordingSeconds(0);
   }, []);
 
   return {
@@ -194,6 +282,8 @@ const useSpeechRecognition = ({ targetText = '', lang = 'en-US', onResult } = {}
     permissionDenied,
     isNetworkError,
     errorMessage,
+    isWarmingUp,
+    recordingSeconds,
     startListening,
     stopListening,
     reset,

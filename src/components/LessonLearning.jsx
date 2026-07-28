@@ -176,6 +176,12 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
   }
 
   if (lessonComplete) {
+    const totalAnswered = score.correct + score.incorrect;
+    const pct = totalAnswered > 0 ? Math.round((score.correct / totalAnswered) * 100) : 0;
+    const ringColor = pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
+    const perfKey = pct >= 80 ? 'completion.excellent' : pct >= 50 ? 'completion.good' : 'completion.keepPracticing';
+    const circumference = 2 * Math.PI * 15.9;
+
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-3 py-4 sm:p-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-5 sm:p-8 text-center border border-gray-200">
@@ -183,22 +189,46 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
           <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">
             {t('completion.title')}
           </h2>
-          <h3 className="text-base sm:text-lg text-gray-600 mb-3 sm:mb-4">
+          <h3 className="text-base sm:text-lg text-gray-600 mb-4 sm:mb-6">
             {lesson.title}
           </h3>
-          <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-            {t('completion.message', { count: lesson.cards.length })}
-          </p>
 
-          {/* Score Summary */}
-          {(score.correct + score.incorrect) > 0 && (
-            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-              <p className="text-base sm:text-lg font-semibold text-emerald-700">
-                {t('completion.score', { correct: score.correct, total: score.correct + score.incorrect })}
-              </p>
+          {/* Score ring + breakdown */}
+          {totalAnswered > 0 && (
+            <div className="mb-5 sm:mb-6 flex flex-col items-center gap-3">
+              {/* SVG ring gauge */}
+              <div className="relative w-28 h-28">
+                <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                  <circle
+                    cx="18" cy="18" r="15.9"
+                    fill="none" stroke="#e5e7eb" strokeWidth="2.5"
+                  />
+                  <circle
+                    cx="18" cy="18" r="15.9"
+                    fill="none"
+                    stroke={ringColor}
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeDasharray={`${(pct / 100) * circumference} ${circumference}`}
+                    style={{ transition: 'stroke-dasharray 0.8s ease' }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-2xl font-bold text-gray-900">{pct}%</span>
+                </div>
+              </div>
+
+              {/* Correct / incorrect breakdown */}
+              <div className="flex gap-6 text-sm font-semibold">
+                <span className="text-emerald-600">✓ {score.correct} doğru</span>
+                <span className="text-red-500">✗ {score.incorrect} yanlış</span>
+              </div>
+
+              {/* Performance message */}
+              <p className="text-sm text-gray-600 font-medium">{t(perfKey)}</p>
             </div>
           )}
-          
+
           <div className="space-y-3">
             <button
               onClick={handleRestart}
@@ -206,7 +236,7 @@ const LessonLearning = ({ lessonId, onBackToLessons }) => {
             >
               {t('completion.practiceAgain')}
             </button>
-            
+
             <button
               onClick={onBackToLessons}
               className="w-full bg-gray-100 text-gray-700 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors text-sm sm:text-base"

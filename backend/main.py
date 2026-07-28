@@ -38,6 +38,15 @@ app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
 init_db()
 
+@app.on_event("startup")
+async def warmup_whisper():
+    """Pre-load the Whisper model in a background thread on server start.
+    This way the first /api/transcribe request won't block waiting for the model."""
+    import asyncio
+    loop = asyncio.get_event_loop()
+    loop.run_in_executor(None, get_whisper)
+
+
 
 @app.get("/")
 def read_root():
