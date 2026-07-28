@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { api } from '../services/api';
 import { useLocale } from '../hooks/useLocale';
 import { AUDIO } from '../constants/theme';
+import { useUser } from '../contexts/UserContext';
 
 const SHUFFLE_STORAGE_KEY = 'wordbank_shuffle';
 
@@ -15,7 +16,7 @@ const shuffleArray = (array) => {
   return shuffled;
 };
 
-const WordBank = ({ onBack }) => {
+const WordBank = ({ onBack, onStartDynamicLesson }) => {
   const [lessons, setLessons] = useState([]);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [selectedLessonId, setSelectedLessonId] = useState('all');
@@ -27,6 +28,8 @@ const WordBank = ({ onBack }) => {
   const [error, setError] = useState(null);
   const [playingAudioId, setPlayingAudioId] = useState(null);
   const { t } = useLocale();
+  const { userData } = useUser();
+  const weakWords = userData?.weakWords || {};
 
   useEffect(() => {
     const fetchLessons = async () => {
@@ -97,6 +100,25 @@ const WordBank = ({ onBack }) => {
     const raw = getFilteredEntries();
     return shuffleMode ? shuffleArray(raw) : raw;
   }, [completedLessons, selectedLessonId, shuffleMode, shuffleSeed]);
+
+  const handleStartReview = () => {
+    const raw = getFilteredEntries();
+    // Filter to only cards with > 0 mistakes
+    const weakCards = raw.filter(card => weakWords[card.id] > 0);
+    if (weakCards.length === 0) return;
+    
+    // Sort by mistake count descending, pick top 10
+    const sorted = [...weakCards].sort((a, b) => weakWords[b.id] - weakWords[a.id]);
+    const reviewCards = sorted.slice(0, 10);
+    
+    onStartDynamicLesson({
+      id: 'weak_review',
+      title: 'Zayıf Kelimeleri Tekrar Et',
+      cards: shuffleArray(reviewCards) // shuffle so they aren't always in same order
+    });
+  };
+
+  const hasWeakWords = getFilteredEntries().some(card => weakWords[card.id] > 0);
 
   if (loading) {
     return (
@@ -170,6 +192,16 @@ const WordBank = ({ onBack }) => {
           </svg>
           {t('wordBank.shuffle')}
         </button>
+
+        {hasWeakWords && (
+          <button
+            onClick={handleStartReview}
+            className="flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 rounded-lg bg-orange-100 text-orange-700 border border-orange-200 hover:bg-orange-200 transition-colors font-medium text-xs sm:text-sm shrink-0"
+          >
+            <span className="text-sm">⚠️</span>
+            <span className="hidden xs:inline">Zayıfları Çalış</span>
+          </button>
+        )}
       </div>
 
       {/* Word List */}
@@ -211,9 +243,16 @@ const WordBank = ({ onBack }) => {
 
                 {/* Text */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-base sm:text-lg font-semibold text-gray-900 truncate">
-                    {entry.text_target}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                      {entry.text_target}
+                    </p>
+                    {weakWords[entry.id] > 0 && (
+                      <span className="bg-orange-100 text-orange-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                        {weakWords[entry.id]} HATA
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs sm:text-sm text-blue-700 font-mono truncate">
                     {entry.text_ipa}
                   </p>
