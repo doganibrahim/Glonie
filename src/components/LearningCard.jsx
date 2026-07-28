@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocale } from '../hooks/useLocale';
 import { CARD_TYPES, AUDIO } from '../constants/theme';
+import useSpeechRecognition from '../hooks/useSpeechRecognition';
 
 const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onScoreUpdate }) => {
   const [showIPA, setShowIPA] = useState(false);
@@ -10,7 +11,26 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
   const [fillBlankCorrect, setFillBlankCorrect] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [isShaking, setIsShaking] = useState(false);
+  // Speech card state
+  const [speechScoreReported, setSpeechScoreReported] = useState(false);
   const { t } = useLocale();
+
+  const handleSpeechResult = useCallback(
+    (correct, heard) => {
+      if (!speechScoreReported) {
+        setSpeechScoreReported(true);
+        if (onScoreUpdate) onScoreUpdate(card.id, correct);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [card?.id, speechScoreReported]
+  );
+
+  const speech = useSpeechRecognition({
+    targetText: card?.text_target || '',
+    lang: 'en-US',
+    onResult: handleSpeechResult,
+  });
 
   // Auto-play audio when card loads (skip for SPEECH cards)
   useEffect(() => {
@@ -42,13 +62,17 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
     }
   }, [card?.audio_url, card?.card_type]);
 
-  // Reset fill-blank state when card changes
+  // Reset fill-blank and speech state when card changes
   useEffect(() => {
     setFillBlankAnswer('');
     setFillBlankSubmitted(false);
     setFillBlankCorrect(false);
     setFailedAttempts(0);
     setIsShaking(false);
+    setSpeechScoreReported(false);
+    speech.reset();
+  // speech.reset is stable (useCallback with no deps), safe to include
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card?.id, currentIndex]);
 
   const handleAudioPlay = () => {
@@ -180,16 +204,165 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
           {card.text_target}
         </p>
         {card.card_type === 'SPEECH' && (
-          <div className="mt-4">
-            <button
-              onClick={(e) => { e.stopPropagation(); /* TODO: implement speech recognition */ }}
-              className="inline-flex items-center bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm hover:bg-blue-100 transition-colors cursor-pointer"
-            >
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
-              </svg>
-              {t('learning.speakYourAnswer')}
-            </button>
+          <div className="mt-6" onClick={(e) => e.stopPropagation()}>
+            {/* ── Unsupported browser fallback ── */}
+            {!speech.isSupported ? (
+              <div className="flex flex-col items-center gap-3">
+                <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 text-center">
+                  {t('learning.speechNotSupported')}
+                </p>
+                {!speechScoreReported && (
+                  <button
+                    onClick={() => {
+                      setSpeechScoreReported(true);
+                      if (onScoreUpdate) onScoreUpdate(card.id, true);
+                    }}
+                    className="px-5 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    {t('learning.manualVerify')}
+                  </button>
+                )}
+                {speechScoreReported && (
+                  <span className="text-sm text-green-700 font-medium">✓ {t('learning.correctSpeech')}</span>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-4">
+                {/* Hint text */}
+                {speech.status === 'idle' && (
+                  <p className="text-xs text-gray-500">{t('learning.speakNow')}</p>
+                )}
+
+                {/* Mic permission denied */}
+                {speech.permissionDenied && (
+                  <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-center">
+                    {t('learning.micPermissionDenied')}
+                  </p>
+                )}
+
+                {/* Network error — prominent manual fallback */}
+                {speech.isNetworkError && (
+                  <div className="w-full p-4 bg-amber-50 border border-amber-200 rounded-lg text-center flex flex-col items-center gap-3">
+                    <p className="text-sm text-amber-800">
+                      🌐 {t('learning.networkError')}
+                    </p>
+                    {!speechScoreReported ? (
+                      <button
+                        onClick={() => {
+                          setSpeechScoreReported(true);
+                          if (onScoreUpdate) onScoreUpdate(card.id, true);
+                        }}
+                        className="px-5 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition-colors"
+                      >
+                        {t('learning.manualVerify')}
+                      </button>
+                    ) : (
+                      <span className="text-sm text-green-700 font-medium">✓ {t('learning.correctSpeech')}</span>
+                    )}
+                  </div>
+                )}
+
+                {/* Other (non-network, non-permission) errors */}
+                {speech.status === 'error' && !speech.permissionDenied && !speech.isNetworkError && speech.errorMessage && (
+                  <p className="text-sm text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-4 py-2 text-center">
+                    {t(`learning.${speech.errorMessage}`) || speech.errorMessage}
+                  </p>
+                )}
+
+                {/* Animated mic button — hide when network error already showing manual fallback */}
+                {speech.status !== 'done' && !speech.isNetworkError && (
+                  <button
+                    disabled={speech.status === 'processing'}
+                    onClick={speech.status === 'listening' ? speech.stopListening : speech.startListening}
+                    className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-4 ${
+                      speech.status === 'listening'
+                        ? 'bg-red-500 hover:bg-red-600 focus:ring-red-200 shadow-lg shadow-red-200'
+                        : speech.status === 'processing'
+                          ? 'bg-violet-300 cursor-not-allowed'
+                          : 'bg-violet-600 hover:bg-violet-700 focus:ring-violet-200 shadow-md'
+                    }`}
+                  >
+                    {/* Pulse rings while listening */}
+                    {speech.status === 'listening' && (
+                      <>
+                        <span className="absolute inset-0 rounded-full bg-red-400 animate-ping opacity-40" />
+                        <span className="absolute inset-[-6px] rounded-full border-2 border-red-300 animate-pulse" />
+                      </>
+                    )}
+                    <svg className="w-7 h-7 text-white relative z-10" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                )}
+
+                {/* Status label — hide when network error or permission denied already shows its own message */}
+                {!speech.isNetworkError && !speech.permissionDenied && (
+                  <p className={`text-sm font-medium ${
+                    speech.status === 'listening' ? 'text-red-600' :
+                    speech.status === 'done' && speech.isCorrect ? 'text-green-600' :
+                    speech.status === 'done' && !speech.isCorrect ? 'text-red-600' :
+                    'text-gray-500'
+                  }`}>
+                    {speech.status === 'idle'       && t('learning.tapToSpeak')}
+                    {speech.status === 'listening'  && t('learning.listening')}
+                    {speech.status === 'processing' && t('learning.processing')}
+                    {speech.status === 'done' && speech.isCorrect  && t('learning.correctSpeech')}
+                    {speech.status === 'done' && !speech.isCorrect && (
+                      t('learning.incorrectSpeech').replace('{heard}', speech.transcript)
+                    )}
+                    {speech.status === 'error' && t('learning.tapToSpeak')}
+                  </p>
+                )}
+
+                {/* Live transcript while listening */}
+                {speech.status === 'listening' && speech.transcript && (
+                  <p className="text-xs text-gray-400 italic">"{speech.transcript}"</p>
+                )}
+
+                {/* Result feedback & actions */}
+                {speech.status === 'done' && (
+                  <div className={`w-full p-3 rounded-lg border text-center ${
+                    speech.isCorrect
+                      ? 'bg-green-50 border-green-200'
+                      : 'bg-red-50 border-red-200'
+                  }`}>
+                    {speech.isCorrect ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm font-semibold text-green-700">{t('learning.correctSpeech')}</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2">
+                        <p className="text-sm text-red-700">
+                          {t('learning.incorrectSpeech').replace('{heard}', speech.transcript)}
+                        </p>
+                        <button
+                          onClick={speech.reset}
+                          className="px-4 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          {t('learning.tryAgainSpeech')}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Subtle manual fallback for non-network errors (e.g. no-speech) */}
+                {speech.status === 'error' && !speech.permissionDenied && !speech.isNetworkError && !speechScoreReported && (
+                  <button
+                    onClick={() => {
+                      setSpeechScoreReported(true);
+                      if (onScoreUpdate) onScoreUpdate(card.id, true);
+                    }}
+                    className="text-xs text-gray-400 underline hover:text-gray-600 transition-colors mt-1"
+                  >
+                    {t('learning.manualVerify')}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
