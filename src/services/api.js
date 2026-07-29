@@ -56,5 +56,20 @@ export const api = {
       throw new Error('Failed to get hint');
     }
     return response.json();
+  },
+
+  // Send chat message to Socratic RAG Assistant
+  sendChat: async (message) => {
+    const response = await fetch(`${API_BASE_URL}/api/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to send chat message');
+    }
+    return response.json();
   }
 };

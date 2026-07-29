@@ -52,12 +52,18 @@ app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 init_db()
 
 @app.on_event("startup")
-async def warmup_whisper():
-    """Pre-load the Whisper model in a background thread on server start.
-    This way the first /api/transcribe request won't block waiting for the model."""
+async def startup_event():
+    """Pre-load the Whisper model and sync embeddings in a background thread on server start."""
     import asyncio
+    from embeddings import sync_card_embeddings
+    
+    def background_startup():
+        get_whisper()
+        db = next(get_db())
+        sync_card_embeddings(db, ai_client)
+        
     loop = asyncio.get_event_loop()
-    loop.run_in_executor(None, get_whisper)
+    loop.run_in_executor(None, background_startup)
 
 
 
@@ -153,5 +159,38 @@ def get_card_hint(card_id: int, request: HintRequest, db: Session = Depends(get_
             contents=prompt,
         )
         return {"hint": response.text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class ChatRequest(BaseModel):
+    message: str
+
+@app.post("/api/chat")
+def socratic_chat(request: ChatRequest, db: Session = Depends(get_db)):
+    from embeddings import search_similar_cards
+    
+    similar_cards = search_similar_cards(db, ai_client, request.message, top_k=3)
+    context_text = "\n".join([f"- {c.text_target}" for c in similar_cards]) if similar_cards else "(İlgili örnek cümle bulunamadı)"
+    
+    prompt = f"""
+    Sen, 'Doğal Yaklaşım' yöntemini benimsemiş Sokratik bir dil öğretmenisin. Kullanıcının İngilizce öğrenimiyle ilgili sorduğu soruya Türkçe yanıt ver.
+    
+    Görevlerin ve Kuralların:
+    1. Gramer kurallarını, tabloları veya formülleri (Subject + verb vb.) ASLA doğrudan verme.
+    2. Cevabı doğrudan söylemek yerine, kullanıcının kendi kendine bulmasını sağlayacak yönlendirici bir soru sor veya bir örnek verip kuralı kendisinin sezmesini bekle.
+    3. Kullanıcının şu ana kadar öğrendiği şu cümleleri (bağlamı) gerektiğinde örnek olarak kullanarak sezgisel bir çıkarım yapmasını sağla:
+    {context_text}
+    
+    Kullanıcının Sorusu: {request.message}
+    
+    Sadece, onu düşündürecek kısa ve cana yakın bir Türkçe yanıt ver.
+    """
+    
+    try:
+        response = ai_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        return {"response": response.text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

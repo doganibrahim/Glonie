@@ -3,6 +3,7 @@ import LessonSelect from './components/LessonSelect';
 import LessonLearning from './components/LessonLearning';
 import WordBank from './components/WordBank';
 import Dashboard from './components/Dashboard';
+import ChatAssistant from './components/ChatAssistant';
 
 function App() {
   const [currentView, setCurrentView] = useState('lessons');
@@ -60,6 +61,7 @@ function App() {
       {currentView === 'dashboard' && (
         <Dashboard onBack={handleBackToLessons} />
       )}
+      <ChatAssistant />
     </div>
   );
 }
