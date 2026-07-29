@@ -59,13 +59,13 @@ export const api = {
   },
 
   // Send chat message to Socratic RAG Assistant
-  sendChat: async (message) => {
+  sendChat: async (messages) => {
     const response = await fetch(`${API_BASE_URL}/api/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ messages }),
     });
     if (!response.ok) {
       throw new Error('Failed to send chat message');

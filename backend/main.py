@@ -177,14 +177,23 @@ def get_card_hint(card_id: int, request: HintRequest, db: Session = Depends(get_
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class ChatMessageItem(BaseModel):
+    role: str
+    text: str
+
 class ChatRequest(BaseModel):
-    message: str
+    messages: list[ChatMessageItem]
 
 @app.post("/api/chat")
 def socratic_chat(request: ChatRequest, db: Session = Depends(get_db)):
     from embeddings import search_similar_cards
     
-    similar_cards = search_similar_cards(db, ai_client, request.message, top_k=5)
+    if not request.messages:
+        raise HTTPException(status_code=400, detail="Mesaj listesi boş olamaz.")
+        
+    last_user_message = request.messages[-1].text
+    
+    similar_cards = search_similar_cards(db, ai_client, last_user_message, top_k=5)
     
     # {blank} içeren alıştırma cümlelerini temizle, sadece tam cümleleri al
     clean_sentences = []
@@ -203,6 +212,13 @@ def socratic_chat(request: ChatRequest, db: Session = Depends(get_db)):
     Bu cümleleri YALNIZCA doğal ve yerinde düşünüyorsan kullan; zorla yerleştirme.
     """ if context_text else ""
 
+    history_text = ""
+    if len(request.messages) > 1:
+        history_text = "GEÇMİŞ KONUŞMA:\n"
+        for msg in request.messages[:-1]:
+            role_tr = "Öğrenci" if msg.role == "user" else "Öğretmen (Sen)"
+            history_text += f"[{role_tr}]: {msg.text}\n\n"
+
     prompt = f"""
 Sen samimi, sıcak ve 'Doğal Yaklaşım' metodunu benimseyen deneyimli bir İngilizce öğretmenisin.
 Kullanıcı seninle Türkçe konuşuyor; sen de TÜRKÇE yanıt veriyorsun.
@@ -220,7 +236,9 @@ YETKİN VE GENEL OLARAK YAKLAŞ:
 - Yanıt 2-3 cümle olsun. Sona mutlaka kullanıcıyı düşündürecek tek bir soru ekle.
 - Samimi, teşvik edici ve merak uyandırıcı bir ton kullan.
 
-Kullanıcının Sorusu: {request.message}
+{history_text}
+
+ÖĞRENCİNİN YENİ SORUSU: {last_user_message}
     """
     
     try:

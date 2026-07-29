@@ -24,11 +24,12 @@ const ChatAssistant = () => {
 
     const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+    const newMessages = [...messages, { role: 'user', text: userMessage }];
+    setMessages(newMessages);
     setIsLoading(true);
 
     try {
-      const data = await api.sendChat(userMessage);
+      const data = await api.sendChat(newMessages);
       setMessages(prev => [...prev, { role: 'assistant', text: data.response }]);
     } catch (error) {
       console.error(error);
