@@ -207,9 +207,9 @@ def socratic_chat(request: ChatRequest, db: Session = Depends(get_db)):
     
     context_text = "\n".join([f"- {s}" for s in clean_sentences]) if clean_sentences else ""
     context_section = f"""
-    [Bağlam - İsteğe bağlı] Kullanıcının uygulamada öğrendiği bazı cümleler:
+    [ARKA PLAN BİLGİSİ - GİZLİ BAĞLAM] Kullanıcının uygulamada öğrendiği/gördüğü bazı cümleler:
     {context_text}
-    Bu cümleleri YALNIZCA doğal ve yerinde düşünüyorsan kullan; zorla yerleştirme.
+    DİKKAT: Bu cümleleri KESİNLİKLE doğrudan alıntılama! "Hatırlıyor musun şu cümlede geçmişti", "Hani şu cümlede olduğu gibi" şeklinde YAPAY GEÇİŞLER YAPMA. Bu cümleler sadece senin kelime dağarcığını kullanıcının seviyesine ayarlaman içindir.
     """ if context_text else ""
 
     history_text = ""
