@@ -13,9 +13,24 @@ from schemas import LessonResponse
 from pydantic import BaseModel
 import crud
 from google import genai
+import google.auth
 
-# Gemini client (API key, .env içinden GEMINI_API_KEY olarak okunur)
-ai_client = genai.Client()
+# Vertex AI client - Application Default Credentials kullanır
+# Kurmak için: gcloud auth application-default login
+try:
+    _credentials, _project = google.auth.default(
+        scopes=["https://www.googleapis.com/auth/cloud-platform"]
+    )
+except Exception:
+    _credentials = None
+    _project = None
+
+ai_client = genai.Client(
+    vertexai=True,
+    project=os.environ.get("GOOGLE_CLOUD_PROJECT", "doc-to-meow-501010"),
+    location=os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1"),
+    credentials=_credentials,
+)
 
 class AnswerRequest(BaseModel):
     correct: bool
@@ -169,21 +184,42 @@ class ChatRequest(BaseModel):
 def socratic_chat(request: ChatRequest, db: Session = Depends(get_db)):
     from embeddings import search_similar_cards
     
-    similar_cards = search_similar_cards(db, ai_client, request.message, top_k=3)
-    context_text = "\n".join([f"- {c.text_target}" for c in similar_cards]) if similar_cards else "(İlgili örnek cümle bulunamadı)"
+    similar_cards = search_similar_cards(db, ai_client, request.message, top_k=5)
     
-    prompt = f"""
-    Sen, 'Doğal Yaklaşım' yöntemini benimsemiş Sokratik bir dil öğretmenisin. Kullanıcının İngilizce öğrenimiyle ilgili sorduğu soruya Türkçe yanıt ver.
+    # {blank} içeren alıştırma cümlelerini temizle, sadece tam cümleleri al
+    clean_sentences = []
+    for c in similar_cards:
+        sentence = c.text_target
+        if '{blank}' not in sentence:
+            clean_sentences.append(sentence)
+        elif c.correct_answer:
+            # {blank} yerine doğru cevabı koy
+            clean_sentences.append(sentence.replace('{blank}', c.correct_answer))
     
-    Görevlerin ve Kuralların:
-    1. Gramer kurallarını, tabloları veya formülleri (Subject + verb vb.) ASLA doğrudan verme.
-    2. Cevabı doğrudan söylemek yerine, kullanıcının kendi kendine bulmasını sağlayacak yönlendirici bir soru sor veya bir örnek verip kuralı kendisinin sezmesini bekle.
-    3. Kullanıcının şu ana kadar öğrendiği şu cümleleri (bağlamı) gerektiğinde örnek olarak kullanarak sezgisel bir çıkarım yapmasını sağla:
+    context_section = f"""
+    [Bağlam - İsteğe bağlı] Kullanıcının uygulamada öğrendiği bazı cümleler:
     {context_text}
-    
-    Kullanıcının Sorusu: {request.message}
-    
-    Sadece, onu düşündürecek kısa ve cana yakın bir Türkçe yanıt ver.
+    Bu cümleleri YALNIZCA doğal ve yerinde düşünüyorsan kullan; zorla yerleştirme.
+    """ if context_text else ""
+
+    prompt = f"""
+Sen samimi, sıcak ve 'Doğal Yaklaşım' metodunu benimseyen deneyimli bir İngilizce öğretmenisin.
+Kullanıcı seninle Türkçe konuşuyor; sen de TÜRKÇE yanıt veriyorsun.
+
+{context_section}
+
+YETKİN VE GENEL OLARAK YAKLAŞ:
+- Sadece uygulamadaki kelimelere sınırlı kalma. Genel İngilizce bilginle de yardım et.
+- Bir kelime veya ifade sorulduğunda Türkçe karşılığını doğrudan söyleme.
+  Bunun yerine o kelimeyi çağrıştıran kısa bir sahne, duygu veya kullanım bağlamı yaz.
+  Ardından kullanıcının o anlamı kendisinin bulmasını sağlayacak bir soru sor.
+  → Örnek: "longer ne demek?" sorusuna kötü yanıt: "Daha uzun demek."
+  → Örnek: "longer ne demek?" sorusuna iyi yanıt: "Bir cetvel düşün — iki kalemi karşılaştırıyorsun. Biri 15 cm, diğeri 20 cm. 20 cm olanı tarif etmek için hangisini söylerdin sence?"
+- Gramer sorusunda kural tablosu verme; somut bir örnek cümleyle yönlendir ve farkı kullanıcıya sezdir.
+- Yanıt 2-3 cümle olsun. Sona mutlaka kullanıcıyı düşündürecek tek bir soru ekle.
+- Samimi, teşvik edici ve merak uyandırıcı bir ton kullan.
+
+Kullanıcının Sorusu: {request.message}
     """
     
     try:
