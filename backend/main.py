@@ -194,3 +194,58 @@ def socratic_chat(request: ChatRequest, db: Session = Depends(get_db)):
         return {"response": response.text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+class StoryRequest(BaseModel):
+    session_id: str
+
+@app.post("/api/stories/generate")
+def generate_story(request: StoryRequest, db: Session = Depends(get_db)):
+    from database import UserCardStat, Card, GeneratedStory
+    from datetime import datetime
+    
+    stats = db.query(UserCardStat).filter(UserCardStat.session_id == request.session_id).all()
+    if not stats:
+        raise HTTPException(status_code=400, detail="Henüz yeterli kelime öğrenmedin! Önce biraz ders çalışmalısın.")
+        
+    card_ids = [s.card_id for s in stats]
+    cards = db.query(Card).filter(Card.id.in_(card_ids)).all()
+    
+    known_sentences = [c.text_target for c in cards]
+    context_text = "\n".join([f"- {s}" for s in known_sentences])
+    
+    prompt = f"""
+    Sen, 'Doğal Yaklaşım' (çeviri veya gramer kuralı olmadan) yöntemini benimsemiş bir dil öğretmenisin. 
+    Kullanıcı şu ana kadar sadece şu İngilizce cümleleri ve buradaki kelimeleri öğrendi:
+    {context_text}
+    
+    Görevlerin:
+    1. Kullanıcının öğrendiği bu kelimeleri ve yapıları (ve sadece bunları veya çok temel uluslararası kelimeleri/bağlaçları) kullanarak ÇOK KISA, basit ve eğlenceli bir İngilizce hikaye (2-3 paragraf) yaz.
+    2. Kullanıcının henüz öğrenmediği zor kelimelerden ve karmaşık gramer yapılarından KESİNLİKLE uzak dur. 
+    3. Hikayenin sonuna Türkçe olarak, okuduğunu anlama (doğal çıkarım) tarzında ufak bir motive edici not veya çok basit bir soru ekle.
+    4. Yanıtı markdown formatında ver.
+    """
+    
+    try:
+        response = ai_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        
+        new_story = GeneratedStory(
+            session_id=request.session_id,
+            content=response.text,
+            created_at=datetime.utcnow()
+        )
+        db.add(new_story)
+        db.commit()
+        db.refresh(new_story)
+        
+        return {"id": new_story.id, "content": new_story.content, "created_at": new_story.created_at}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/stories")
+def get_stories(session_id: str, db: Session = Depends(get_db)):
+    from database import GeneratedStory
+    stories = db.query(GeneratedStory).filter(GeneratedStory.session_id == session_id).order_by(GeneratedStory.created_at.desc()).all()
+    return stories

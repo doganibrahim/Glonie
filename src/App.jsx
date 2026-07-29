@@ -4,6 +4,7 @@ import LessonLearning from './components/LessonLearning';
 import WordBank from './components/WordBank';
 import Dashboard from './components/Dashboard';
 import ChatAssistant from './components/ChatAssistant';
+import Stories from './components/Stories';
 
 function App() {
   const [currentView, setCurrentView] = useState('lessons');
@@ -36,6 +37,10 @@ function App() {
     setCurrentView('dashboard');
   };
 
+  const handleOpenStories = () => {
+    setCurrentView('stories');
+  };
+
   return (
     <div className="min-h-screen w-full">
       {currentView === 'lessons' && (
@@ -43,6 +48,7 @@ function App() {
           onLessonSelect={handleLessonSelect} 
           onOpenWordBank={handleOpenWordBank} 
           onOpenDashboard={handleOpenDashboard}
+          onOpenStories={handleOpenStories}
         />
       )}
       {currentView === 'learning' && (
@@ -60,6 +66,9 @@ function App() {
       )}
       {currentView === 'dashboard' && (
         <Dashboard onBack={handleBackToLessons} />
+      )}
+      {currentView === 'stories' && (
+        <Stories onBack={handleBackToLessons} />
       )}
       <ChatAssistant />
     </div>

@@ -71,5 +71,30 @@ export const api = {
       throw new Error('Failed to send chat message');
     }
     return response.json();
+  },
+
+  // Generate new personalized story
+  generateStory: async (sessionId) => {
+    const response = await fetch(`${API_BASE_URL}/api/stories/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ session_id: sessionId }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to generate story');
+    }
+    return response.json();
+  },
+
+  // Get user's stories
+  getStories: async (sessionId) => {
+    const response = await fetch(`${API_BASE_URL}/api/stories?session_id=${sessionId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch stories');
+    }
+    return response.json();
   }
 };
