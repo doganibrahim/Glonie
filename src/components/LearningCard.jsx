@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useLocale } from '../hooks/useLocale';
 import { CARD_TYPES, AUDIO } from '../constants/theme';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
+import { api } from '../services/api';
 
 const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onScoreUpdate }) => {
   const [showIPA, setShowIPA] = useState(false);
@@ -11,6 +12,8 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
   const [fillBlankCorrect, setFillBlankCorrect] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [isShaking, setIsShaking] = useState(false);
+  const [hint, setHint] = useState('');
+  const [isHintLoading, setIsHintLoading] = useState(false);
   // Speech card state
   const [speechScoreReported, setSpeechScoreReported] = useState(false);
   const { t } = useLocale();
@@ -69,6 +72,7 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
     setFillBlankCorrect(false);
     setFailedAttempts(0);
     setIsShaking(false);
+    setHint('');
     setSpeechScoreReported(false);
     speech.reset();
   // speech.reset is stable (useCallback with no deps), safe to include
@@ -113,6 +117,20 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
     setFillBlankAnswer('');
     setFillBlankSubmitted(false);
     setFillBlankCorrect(false);
+    // Don't reset hint on retry so they can still see it while typing
+  };
+
+  const handleGetHint = async (e) => {
+    e.stopPropagation();
+    setIsHintLoading(true);
+    try {
+      const data = await api.getHint(card.id, failedAttempts);
+      setHint(data.hint);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsHintLoading(false);
+    }
   };
 
   const renderCardContent = () => {
@@ -172,13 +190,29 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
                       ? t('learning.incorrect').replace('{answer}', card.correct_answer)
                       : t('learning.tryAgainHint').replace('{remaining}', String(2 - failedAttempts))}
                   </p>
+                  
+                  {hint && (
+                    <div className="mt-4 mb-2 p-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-lg text-violet-800 dark:text-violet-300 text-sm font-medium text-left shadow-sm">
+                      💡 {hint}
+                    </div>
+                  )}
+
                   {!showCorrectAnswer && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleFillBlankRetry(); }}
-                      className="mt-3 px-5 py-2 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-700 hover:bg-rose-50 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-400 rounded-lg text-sm font-medium transition-colors"
-                    >
-                      {t('learning.tryAgain')}
-                    </button>
+                    <div className="flex justify-center gap-3 mt-3">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleFillBlankRetry(); }}
+                        className="px-5 py-2 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-700 hover:bg-rose-50 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-400 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        {t('learning.tryAgain')}
+                      </button>
+                      <button
+                        onClick={handleGetHint}
+                        disabled={isHintLoading}
+                        className="px-5 py-2 bg-white dark:bg-slate-800 border border-violet-200 dark:border-violet-700 hover:bg-violet-50 dark:hover:bg-violet-900/40 text-violet-700 dark:text-violet-400 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                      >
+                        {isHintLoading ? 'Yükleniyor...' : '💡 İpucu Al'}
+                      </button>
+                    </div>
                   )}
                 </>
               )}
@@ -253,13 +287,29 @@ const LearningCard = ({ card, onNext, onPrevious, currentIndex, totalCards, onSc
                       ? t('learning.incorrect').replace('{answer}', card.text_target)
                       : t('learning.tryAgainHint').replace('{remaining}', String(2 - failedAttempts))}
                   </p>
+                  
+                  {hint && (
+                    <div className="mt-4 mb-2 p-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-lg text-violet-800 dark:text-violet-300 text-sm font-medium text-left shadow-sm">
+                      💡 {hint}
+                    </div>
+                  )}
+
                   {!showCorrectAnswer && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleFillBlankRetry(); }}
-                      className="mt-3 px-5 py-2 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-700 hover:bg-rose-50 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-400 rounded-lg text-sm font-medium transition-colors"
-                    >
-                      {t('learning.tryAgain')}
-                    </button>
+                    <div className="flex justify-center gap-3 mt-3">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleFillBlankRetry(); }}
+                        className="px-5 py-2 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-700 hover:bg-rose-50 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-400 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        {t('learning.tryAgain')}
+                      </button>
+                      <button
+                        onClick={handleGetHint}
+                        disabled={isHintLoading}
+                        className="px-5 py-2 bg-white dark:bg-slate-800 border border-violet-200 dark:border-violet-700 hover:bg-violet-50 dark:hover:bg-violet-900/40 text-violet-700 dark:text-violet-400 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                      >
+                        {isHintLoading ? 'Yükleniyor...' : '💡 İpucu Al'}
+                      </button>
+                    </div>
                   )}
                 </>
               )}

@@ -12,6 +12,10 @@ from database import init_db, get_db
 from schemas import LessonResponse
 from pydantic import BaseModel
 import crud
+from google import genai
+
+# Gemini client (API key, .env içinden GEMINI_API_KEY olarak okunur)
+ai_client = genai.Client()
 
 class AnswerRequest(BaseModel):
     correct: bool
@@ -119,3 +123,35 @@ def submit_card_answer(card_id: int, answer: AnswerRequest, db: Session = Depend
     """Update SM-2 stats for a specific card"""
     stat = crud.update_user_card_stat(db, answer.session_id, card_id, answer.correct)
     return {"status": "ok", "next_review_at": stat.next_review_at}
+
+class HintRequest(BaseModel):
+    attempt: int
+
+@app.post("/api/cards/{card_id}/hint")
+def get_card_hint(card_id: int, request: HintRequest, db: Session = Depends(get_db)):
+    card = crud.get_card_by_id(db, card_id)
+    if not card:
+        raise HTTPException(status_code=404, detail="Card not found")
+        
+    prompt = f"""
+    Sen, 'Doğal Yaklaşım' (Gramer kuralları olmadan, çeviri yapmadan, sezgisel öğrenme) yöntemini benimsemiş dostane bir dil öğretmenisin. 
+    Kullanıcı İngilizce bir kelimeyi bulmakta zorlanıyor ({request.attempt}. denemesi).
+    
+    Hedef Kelime: {card.correct_answer or card.text_target}
+    Bağlam/Cümle: {card.text_target}
+    
+    Görevlerin:
+    1. Hedef kelimeyi (Cevabı) ASLA doğrudan söyleme.
+    2. Cevaba giden Türkçe, anımsatıcı (sokratik) bir ipucu ver. 
+    3. Eğer {request.attempt} > 2 ise ipucu biraz daha belirgin olabilir ama yine de kelimeyi doğrudan verme.
+    4. Sadece ipucunu içeren kısa ve samimi bir yanıt ver.
+    """
+    
+    try:
+        response = ai_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        return {"hint": response.text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -41,5 +41,20 @@ export const api = {
       throw new Error('Failed to submit answer');
     }
     return response.json();
+  },
+
+  // Get intelligent hint
+  getHint: async (cardId, attempt) => {
+    const response = await fetch(`${API_BASE_URL}/api/cards/${cardId}/hint`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ attempt }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get hint');
+    }
+    return response.json();
   }
 };
