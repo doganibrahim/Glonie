@@ -6,7 +6,7 @@ from google import genai
 
 def generate_embedding(text: str, client: genai.Client) -> list[float]:
     response = client.models.embed_content(
-        model="text-embedding-004",
+        model="models/text-embedding-004",
         contents=text
     )
     return response.embeddings[0].values

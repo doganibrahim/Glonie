@@ -16,8 +16,10 @@ def get_lesson_by_id(db: Session, lesson_id: int):
     if lesson:
         # Ensure cards are ordered by order_index
         lesson.cards = sorted(lesson.cards, key=lambda card: card.order_index)
-    
     return lesson
+
+def get_card_by_id(db: Session, card_id: int):
+    return db.query(Card).filter(Card.id == card_id).first()
 
 def update_user_card_stat(db: Session, session_id: str, card_id: int, correct: bool):
     stat = db.query(UserCardStat).filter(

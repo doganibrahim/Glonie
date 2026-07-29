@@ -62,23 +62,23 @@ const LessonLearning = ({ lessonId, customLesson, onBackToLessons }) => {
   }, [lessonId, customLesson]);
 
   const handleScoreUpdate = (cardId, isCorrect) => {
+    // Prevent double-counting the same card
+    if (score.answered[cardId] !== undefined) return;
+
+    // Side effects OUTSIDE of setState updater to avoid setState-during-render
+    if (isCorrect) recordSuccess(cardId);
+    else recordMistake(cardId);
+
+    // Send to backend SM-2
+    api.submitAnswer(cardId, isCorrect, getSessionId()).catch(console.error);
+
     setScore((prev) => {
-      // Prevent double-counting the same card
       if (prev.answered[cardId] !== undefined) return prev;
-      
-      // Spaced repetition tracking
-      if (isCorrect) recordSuccess(cardId);
-      else recordMistake(cardId);
-
-      // Send to backend SM-2
-      api.submitAnswer(cardId, isCorrect, getSessionId()).catch(console.error);
-
       const updated = {
         correct: prev.correct + (isCorrect ? 1 : 0),
         incorrect: prev.incorrect + (isCorrect ? 0 : 1),
         answered: { ...prev.answered, [cardId]: isCorrect },
       };
-      
       if (!customLesson) {
         localStorage.setItem(`lesson_score_${lessonId}`, JSON.stringify(updated));
       }
