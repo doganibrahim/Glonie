@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, UniqueConstraint
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, UniqueConstraint, Float, DateTime
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 # sqlite database connection
@@ -33,6 +33,41 @@ class Card(Base):
     correct_answer = Column(String, nullable=True)  # Used for FILL_BLANK cards
 
     lesson = relationship("Lesson", back_populates="cards")
+
+# user card stats for SM-2
+class UserCardStat(Base):
+    __tablename__ = "user_card_stats"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String, index=True, nullable=False)
+    card_id = Column(Integer, ForeignKey("cards.id", ondelete="CASCADE"), nullable=False)
+    ease_factor = Column(Float, default=2.5)
+    interval = Column(Integer, default=0)
+    repetitions = Column(Integer, default=0)
+    next_review_at = Column(DateTime, nullable=False)
+    last_answered_at = Column(DateTime, nullable=True)
+    correct_count = Column(Integer, default=0)
+    wrong_count = Column(Integer, default=0)
+
+    card = relationship("Card")
+
+# card embeddings for RAG
+class CardEmbedding(Base):
+    __tablename__ = "card_embeddings"
+
+    card_id = Column(Integer, ForeignKey("cards.id", ondelete="CASCADE"), primary_key=True)
+    embedding = Column(String, nullable=False)
+
+    card = relationship("Card")
+
+# generated stories
+class GeneratedStory(Base):
+    __tablename__ = "generated_stories"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String, index=True, nullable=False)
+    content = Column(String, nullable=False)
+    created_at = Column(DateTime, nullable=False)
 
 # init
 def init_db():

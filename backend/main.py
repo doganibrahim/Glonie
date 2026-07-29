@@ -3,10 +3,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 import tempfile, os, threading
+from dotenv import load_dotenv
+
+# Yükle .env dosyasını (üst dizindeki)
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 from database import init_db, get_db
 from schemas import LessonResponse
+from pydantic import BaseModel
 import crud
+
+class AnswerRequest(BaseModel):
+    correct: bool
+    session_id: str
 
 # ---------- Whisper (lazy-loaded on first transcribe call) ----------
 _whisper_model = None
@@ -92,3 +101,21 @@ def get_lesson(lesson_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Lesson not found")
     
     return lesson
+
+
+@app.get("/api/lessons/{lesson_id}/adaptive", response_model=LessonResponse)
+def get_adaptive_lesson(lesson_id: int, session_id: str, db: Session = Depends(get_db)):
+    """Returns a specific lesson with cards ordered adaptively for the user"""
+    lesson = crud.get_adaptive_lesson_by_id(db, lesson_id, session_id)
+    
+    if lesson is None:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+    
+    return lesson
+
+
+@app.post("/api/cards/{card_id}/answer")
+def submit_card_answer(card_id: int, answer: AnswerRequest, db: Session = Depends(get_db)):
+    """Update SM-2 stats for a specific card"""
+    stat = crud.update_user_card_stat(db, answer.session_id, card_id, answer.correct)
+    return {"status": "ok", "next_review_at": stat.next_review_at}

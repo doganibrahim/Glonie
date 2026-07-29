@@ -17,5 +17,29 @@ export const api = {
       throw new Error('Failed to fetch lesson');
     }
     return response.json();
+  },
+
+  // Get adaptive lesson
+  getAdaptiveLesson: async (lessonId, sessionId) => {
+    const response = await fetch(`${API_BASE_URL}/api/lessons/${lessonId}/adaptive?session_id=${sessionId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch adaptive lesson');
+    }
+    return response.json();
+  },
+
+  // Submit card answer
+  submitAnswer: async (cardId, correct, sessionId) => {
+    const response = await fetch(`${API_BASE_URL}/api/cards/${cardId}/answer`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ correct, session_id: sessionId }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to submit answer');
+    }
+    return response.json();
   }
 };

@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { useLocale } from '../hooks/useLocale';
 import LearningCard from './LearningCard';
 import { useUser } from '../contexts/UserContext';
+import { getSessionId } from '../utils/session';
 
 const LessonLearning = ({ lessonId, customLesson, onBackToLessons }) => {
   const [lesson, setLesson] = useState(null);
@@ -26,7 +27,7 @@ const LessonLearning = ({ lessonId, customLesson, onBackToLessons }) => {
     const fetchLesson = async () => {
       try {
         setLoading(true);
-        const data = await api.getLesson(lessonId);
+        const data = await api.getAdaptiveLesson(lessonId, getSessionId());
         setLesson(data);
 
         // Restore progress from localStorage
@@ -68,6 +69,9 @@ const LessonLearning = ({ lessonId, customLesson, onBackToLessons }) => {
       // Spaced repetition tracking
       if (isCorrect) recordSuccess(cardId);
       else recordMistake(cardId);
+
+      // Send to backend SM-2
+      api.submitAnswer(cardId, isCorrect, getSessionId()).catch(console.error);
 
       const updated = {
         correct: prev.correct + (isCorrect ? 1 : 0),
