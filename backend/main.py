@@ -196,6 +196,7 @@ def socratic_chat(request: ChatRequest, db: Session = Depends(get_db)):
             # {blank} yerine doğru cevabı koy
             clean_sentences.append(sentence.replace('{blank}', c.correct_answer))
     
+    context_text = "\n".join([f"- {s}" for s in clean_sentences]) if clean_sentences else ""
     context_section = f"""
     [Bağlam - İsteğe bağlı] Kullanıcının uygulamada öğrendiği bazı cümleler:
     {context_text}
