@@ -580,6 +580,173 @@ def seed_chapter_3(db: Session):
     print(f"✅ Successfully seeded Chapter 3: 4 lessons, {len(all_cards)} cards")
 
 
+def seed_chapter_4(db: Session):
+    """Seed Chapter 4: Body Parts and Actions"""
+    
+    lesson12 = Lesson(order_index=12, title="Body Parts")
+    db.add(lesson12)
+    db.flush()
+
+    lesson12_cards = [
+        Card(lesson_id=lesson12.id, order_index=1,
+             image_url=f"{BASE_IMG}/head.svg",
+             audio_url=f"{BASE_AUD}/head.mp3",
+             text_target="This is a head.",
+             text_ipa="/ðɪs ɪz ə hɛd/", card_type="STORY"),
+        Card(lesson_id=lesson12.id, order_index=2,
+             image_url=f"{BASE_IMG}/face.svg",
+             audio_url=f"{BASE_AUD}/face.mp3",
+             text_target="This is a face.",
+             text_ipa="/ðɪs ɪz ə feɪs/", card_type="STORY"),
+        Card(lesson_id=lesson12.id, order_index=3,
+             image_url=f"{BASE_IMG}/eyes.svg",
+             audio_url=f"{BASE_AUD}/eyes.mp3",
+             text_target="These are eyes.",
+             text_ipa="/ðiːz ɑr aɪz/", card_type="STORY"),
+        Card(lesson_id=lesson12.id, order_index=4,
+             image_url=f"{BASE_IMG}/eyes.svg",
+             audio_url=f"{BASE_AUD}/two_eyes.mp3",
+             text_target="I have two eyes.",
+             text_ipa="/aɪ hæv tu aɪz/", card_type="LISTENING"),
+        Card(lesson_id=lesson12.id, order_index=5,
+             image_url=f"{BASE_IMG}/nose.svg",
+             audio_url=f"{BASE_AUD}/nose.mp3",
+             text_target="This is a nose.",
+             text_ipa="/ðɪs ɪz ə noʊz/", card_type="STORY"),
+        Card(lesson_id=lesson12.id, order_index=6,
+             image_url=f"{BASE_IMG}/mouth.svg",
+             audio_url=f"{BASE_AUD}/mouth.mp3",
+             text_target="This is a mouth.",
+             text_ipa="/ðɪs ɪz ə maʊθ/", card_type="STORY"),
+        Card(lesson_id=lesson12.id, order_index=7,
+             image_url=f"{BASE_IMG}/head.svg",
+             audio_url=f"{BASE_AUD}/head.mp3",
+             text_target="This is a {blank}.",
+             text_ipa="/ðɪs ɪz ə hɛd/", card_type="FILL_BLANK", correct_answer="head"),
+    ]
+    
+    lesson13 = Lesson(order_index=13, title="Actions with Body")
+    db.add(lesson13)
+    db.flush()
+
+    lesson13_cards = [
+        Card(lesson_id=lesson13.id, order_index=1,
+             image_url=f"{BASE_IMG}/see_eyes.svg",
+             audio_url=f"{BASE_AUD}/see_eyes.mp3",
+             text_target="I see with my eyes.",
+             text_ipa="/aɪ si wɪð maɪ aɪz/", card_type="STORY"),
+        Card(lesson_id=lesson13.id, order_index=2,
+             image_url=f"{BASE_IMG}/hear_ears.svg",
+             audio_url=f"{BASE_AUD}/hear_ears.mp3",
+             text_target="I hear with my ears.",
+             text_ipa="/aɪ hɪr wɪð maɪ ɪrz/", card_type="STORY"),
+        Card(lesson_id=lesson13.id, order_index=3,
+             image_url=f"{BASE_IMG}/smell_nose.svg",
+             audio_url=f"{BASE_AUD}/smell_nose.mp3",
+             text_target="I smell with my nose.",
+             text_ipa="/aɪ smɛl wɪð maɪ noʊz/", card_type="STORY"),
+        Card(lesson_id=lesson13.id, order_index=4,
+             image_url=f"{BASE_IMG}/eat_mouth.svg",
+             audio_url=f"{BASE_AUD}/eat_mouth.mp3",
+             text_target="I eat with my mouth.",
+             text_ipa="/aɪ it wɪð maɪ maʊθ/", card_type="STORY"),
+        Card(lesson_id=lesson13.id, order_index=5,
+             image_url=f"{BASE_IMG}/walk_legs.svg",
+             audio_url=f"{BASE_AUD}/walk_legs.mp3",
+             text_target="I walk with my legs.",
+             text_ipa="/aɪ wɔk wɪð maɪ lɛɡz/", card_type="STORY"),
+        Card(lesson_id=lesson13.id, order_index=6,
+             image_url=f"{BASE_IMG}/see_eyes.svg",
+             audio_url=f"{BASE_AUD}/see_eyes.mp3",
+             text_target="I {blank} with my eyes.",
+             text_ipa="/aɪ si wɪð maɪ aɪz/", card_type="FILL_BLANK", correct_answer="see"),
+    ]
+
+    all_cards = lesson12_cards + lesson13_cards
+    for card in all_cards:
+        db.add(card)
+    db.commit()
+    print(f"✅ Successfully seeded Chapter 4: 2 lessons, {len(all_cards)} cards")
+
+def seed_chapter_5(db: Session):
+    """Seed Chapter 5: Clothes and Colors"""
+    
+    lesson14 = Lesson(order_index=14, title="Clothes")
+    db.add(lesson14)
+    db.flush()
+
+    lesson14_cards = [
+        Card(lesson_id=lesson14.id, order_index=1,
+             image_url=f"{BASE_IMG}/shirt.svg",
+             audio_url=f"{BASE_AUD}/shirt.mp3",
+             text_target="This is a shirt.",
+             text_ipa="/ðɪs ɪz ə ʃɜrt/", card_type="STORY"),
+        Card(lesson_id=lesson14.id, order_index=2,
+             image_url=f"{BASE_IMG}/pants.svg",
+             audio_url=f"{BASE_AUD}/pants.mp3",
+             text_target="These are pants.",
+             text_ipa="/ðiːz ɑr pænts/", card_type="STORY"),
+        Card(lesson_id=lesson14.id, order_index=3,
+             image_url=f"{BASE_IMG}/shoes.svg",
+             audio_url=f"{BASE_AUD}/shoes.mp3",
+             text_target="These are shoes.",
+             text_ipa="/ðiːz ɑr ʃuz/", card_type="STORY"),
+        Card(lesson_id=lesson14.id, order_index=4,
+             image_url=f"{BASE_IMG}/dress.svg",
+             audio_url=f"{BASE_AUD}/dress.mp3",
+             text_target="This is a dress.",
+             text_ipa="/ðɪs ɪz ə drɛs/", card_type="STORY"),
+        Card(lesson_id=lesson14.id, order_index=5,
+             image_url=f"{BASE_IMG}/shirt.svg",
+             audio_url=f"{BASE_AUD}/shirt.mp3",
+             text_target="This is a {blank}.",
+             text_ipa="/ðɪs ɪz ə ʃɜrt/", card_type="FILL_BLANK", correct_answer="shirt"),
+    ]
+    
+    lesson15 = Lesson(order_index=15, title="Colors")
+    db.add(lesson15)
+    db.flush()
+
+    lesson15_cards = [
+        Card(lesson_id=lesson15.id, order_index=1,
+             image_url=f"{BASE_IMG}/red.svg",
+             audio_url=f"{BASE_AUD}/red.mp3",
+             text_target="This is red.",
+             text_ipa="/ðɪs ɪz rɛd/", card_type="STORY"),
+        Card(lesson_id=lesson15.id, order_index=2,
+             image_url=f"{BASE_IMG}/blue.svg",
+             audio_url=f"{BASE_AUD}/blue.mp3",
+             text_target="This is blue.",
+             text_ipa="/ðɪs ɪz blu/", card_type="STORY"),
+        Card(lesson_id=lesson15.id, order_index=3,
+             image_url=f"{BASE_IMG}/green.svg",
+             audio_url=f"{BASE_AUD}/green.mp3",
+             text_target="This is green.",
+             text_ipa="/ðɪs ɪz ɡrin/", card_type="STORY"),
+        Card(lesson_id=lesson15.id, order_index=4,
+             image_url=f"{BASE_IMG}/yellow.svg",
+             audio_url=f"{BASE_AUD}/yellow.mp3",
+             text_target="This is yellow.",
+             text_ipa="/ðɪs ɪz ˈjɛloʊ/", card_type="STORY"),
+        Card(lesson_id=lesson15.id, order_index=5,
+             image_url=f"{BASE_IMG}/red_shirt.svg",
+             audio_url=f"{BASE_AUD}/red_shirt.mp3",
+             text_target="The shirt is red.",
+             text_ipa="/ðə ʃɜrt ɪz rɛd/", card_type="LISTENING"),
+        Card(lesson_id=lesson15.id, order_index=6,
+             image_url=f"{BASE_IMG}/blue_shoes.svg",
+             audio_url=f"{BASE_AUD}/blue_shoes.mp3",
+             text_target="The shoes are blue.",
+             text_ipa="/ðə ʃuz ɑr blu/", card_type="STORY"),
+    ]
+
+    all_cards = lesson14_cards + lesson15_cards
+    for card in all_cards:
+        db.add(card)
+    db.commit()
+    print(f"✅ Successfully seeded Chapter 5: 2 lessons, {len(all_cards)} cards")
+
+
 def main():
     """Main seeding function"""
     print("🌱 Initializing database...")
@@ -599,6 +766,12 @@ def main():
 
         print("Seeding Chapter 3 curriculum...")
         seed_chapter_3(db)
+
+        print("Seeding Chapter 4 curriculum...")
+        seed_chapter_4(db)
+
+        print("Seeding Chapter 5 curriculum...")
+        seed_chapter_5(db)
 
         print("\n🎉 Database seeding completed successfully!")
 
