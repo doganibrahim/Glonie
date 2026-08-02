@@ -450,3 +450,56 @@ glonie/
 </details>
 
 ---
+
+<details>
+  <summary><h1>Sprint 3</h1></summary>
+
+---
+
+<details>
+  <summary><h2>Sprint Overview</h2></summary>
+
+- **Sprint Notes:**
+  * It was decided to completely revamp the UI with a global dark mode and a sleek slate/emerald custom theme.
+  * It was decided to add gamification elements (XP, streaks, badges) and a new Profile Dashboard to keep users motivated.
+  * It was decided to integrate AI deeply into the app: SM-2 adaptive learning, intelligent hints, a personalized story generator, and a Socratic RAG-based chat assistant that guides the user without giving direct answers.
+  * It was decided to implement a full Speech Recognition pipeline with a transcribe endpoint and cross-browser support for the SPEECH card type.
+  * It was decided to make the app a PWA (Progressive Web App) using `vite-pwa` for offline capabilities and native-like experience.
+  * It was decided to expand the curriculum significantly (Chapters 4 & 5) and add Turkish UI support.
+
+- **Sprint Review:**
+  * The Speech Recognition integration is functional across browsers, supporting auto-stop recording and transcription.
+  * AI-powered Socratic Chat successfully provides hints and maintains conversation history without explicitly giving away the answers.
+  * The SM-2 spaced repetition algorithm was implemented to optimize review times.
+  * The Babbel-style lesson list, unit grouping, and cards provide a much more professional look.
+  * Gamification (streak, XP, badges) successfully tracks user progress over time.
+  * PWA service workers successfully integrated for a better mobile experience.
+  * New chapters added with corresponding calendar, body part, and family member illustrations.
+
+- **Git History:**
+
+| Commit | Message |
+|--------|---------|
+| `7da374c` | feat(assets): generate and add calendar and body part illustrations |
+| `41f6ff2` | feat(data): seed complete Chapter 4 and 5 curriculum data |
+| `e2fd5f6` | feat(assets): add arrow-labeled images to distinguish family members |
+| `85c6a86` | fix(chat): prevent explicit referencing of context sentences |
+| `1819150` | feat(chat): add direct answer override for Socratic rules |
+| `a61f24c` | feat(chat): add conversation history memory to Socratic Chat |
+| `db7c3b5` | feat(ai): implement personalized story generator |
+| `21880b8` | feat(ai): implement socratic rag assistant |
+| `f3c6a96` | feat(ai): implement intelligent hint engine |
+| `3243217` | feat(ai): implement SM-2 adaptive learning engine |
+| `db1d5cd` | feat(learning): rebuild babbel-style lesson list, unit grouping, and cards |
+| `b76ded1` | feat(ui): add new profile dashboard and word bank components |
+| `d569aa0` | style: implement global dark mode and custom slate/emerald theme |
+| `69ba96d` | feat(core): add UserContext for gamification (streak, xp, badges) |
+| `26df1d0` | feat(pwa): integrate vite-pwa plugin and service workers |
+| `57a9e52` | complete sprint 3: turkish ui, score ring, auto-stop recording, whisper warmup |
+| `9dff87d` | fix speech recognition: add transcribe endpoint and cross-browser support |
+
+</details>
+
+</details>
+
+---
